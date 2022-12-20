@@ -16,17 +16,10 @@ public class Solution0226 {
         if (root == null || (root.left == null && root.right == null)) {
             return root;
         }
-        if (root.right == null && root.left != null) {
-            root.right = invertTree(root.left);
-            root.left = null;
-        } else if (root.left == null && root.right != null) {
-            root.left = invertTree(root.right);
-            root.right = null;
-        } else {
-            TreeNode tmp = invertTree(root.left);
-            root.left = invertTree(root.right);
-            root.right = tmp;
-        }
+
+        TreeNode tmp = invertTree(root.left);
+        root.left = invertTree(root.right);
+        root.right = tmp;
 
         return root;
     }

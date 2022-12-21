@@ -35,9 +35,9 @@ public class Solution0886 {
         }
 
         Person[] people = new Person[n + 1];
-        for (int i = 0; i < dislikes.length; i++) {
-            int p1 = dislikes[i][0];
-            int p2 = dislikes[i][1];
+        for (int[] dislike : dislikes) {
+            int p1 = dislike[0];
+            int p2 = dislike[1];
             if (people[p1] == null) {
                 people[p1] = new Person(p1, p2);
             } else {
@@ -70,58 +70,51 @@ public class Solution0886 {
             people[person.val] = null;
         }
 
-        // people who already visited
+        // people who already visited， 1 or 2
         int[] linked = new int[n+1];
         LinkedList<Integer> linkedList = new LinkedList<Integer>();
+
         for (int i = 1; i < n + 1; i++) {
-            if (!dfs(people, linkedList, linked, 0, i, i)) {
+            if (people[i] == null || linked[i] > 0) {
+                continue;
+            }
+
+            if (!dfs(people, linkedList, linked, i, i)) {
                 return false;
             }
         }
         return true;
     }
 
-    private boolean dfs(Person[] people, LinkedList<Integer> linkedList, int[] linked, int linkedAmout, int curr, int start) {
+    private boolean dfs(Person[] people, LinkedList<Integer> linkedList, int[] linked, int curr, int start) {
         if (curr > people.length || null == people[curr]) {
             return true;
         }
-        Person person = people[curr];
-        if (linked[curr] == 1) {
-            return (linkedAmout - linkedList.indexOf(new Integer(curr))) % 2 != 1;
+        Integer last = 0;
+        if (linkedList.isEmpty()) {
+            // first point in new circle, never accessed befor/e
+            linked[curr] = 1;
+        } else {
+            last = linkedList.getLast();
+            if (linked[curr] > 0) {
+                // already linked
+                return linked[curr] != linked[last];
+            }
+            linked[curr] = 3 - linked[last];
         }
-        linked[curr] = 1;
-        linkedAmout++;
         linkedList.add(curr);
-        List<Integer> relatedPersons = person.relatedPersons;
+        List<Integer> relatedPersons = people[curr].relatedPersons;
         for (Integer relatedPerson : relatedPersons) {
-            if (relatedPerson.equals(linkedList.getLast()) && relatedPerson < start) {
+            if (relatedPerson.equals(last) || relatedPerson < start) {
                 continue;
             }
-            if(!dfs(people, linkedList, linked, linkedAmout, relatedPerson, start)) {
+            if(!dfs(people, linkedList, linked, relatedPerson, start)) {
                 return false;
             }
         }
-        /**
-         * this place cause Exception
-         * java.util.ConcurrentModificationException
-         * 	at java.util.ArrayList$Itr.checkForComodification(ArrayList.java:907)
-         * 	at java.util.ArrayList$Itr.next(ArrayList.java:857)
-         * 	at cn.qiushile.leetcode.Solution0886.dfs(Solution0886.java:99)
-         * 	at cn.qiushile.leetcode.Solution0886.dfs(Solution0886.java:103)
-         * 	at cn.qiushile.leetcode.Solution0886.dfs(Solution0886.java:103)
-         */
-        //if (relatedPersons.size() <= 2) {
-        //    for (Integer relatedPerson : relatedPersons) {
-        //        people[relatedPerson].relatedPersons.remove(new Integer(curr));
-        //    }
-        //    people[curr] = null;
-        //}
-        linked[curr] = 0;
         linkedList.removeLast();
-        //linkedAmout--;
         return true;
     }
-
 
     /**
      * Definition for a node.

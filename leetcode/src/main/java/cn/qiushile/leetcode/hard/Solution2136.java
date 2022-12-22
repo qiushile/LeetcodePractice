@@ -1,5 +1,7 @@
 package cn.qiushile.leetcode.hard;
 
+import java.util.Random;
+
 /**
  * 2136. Earliest Possible Day of Full Bloom
  * You have n flower seeds. Every seed must be planted first before it can begin to grow, then bloom. Planting a seed takes time and so does the growth of a seed. You are given two 0-indexed integer arrays plantTime and growTime, of length n each:
@@ -35,52 +37,92 @@ package cn.qiushile.leetcode.hard;
  * n == plantTime.length == growTime.length
  * 1 <= n <= 105
  * 1 <= plantTime[i], growTime[i] <= 104
+ *
+ * Runtime 480 ms Beats 5.5% Memory 55 MB Beats 88.50%
+ *
  * @author qiushile <qiushile@sina.com>
  * @date 2022/12/21
  */
 public class Solution2136 {
 
     public int earliestFullBloom(int[] plantTime, int[] growTime) {
+
+        // sort by growTime
+        quickSort(plantTime, growTime, 0, growTime.length - 1);
         int len = plantTime.length;
-        int sumPlantTime = 0;
-        int minGrowIndex = 0;
-        int secondMinGrowIndex = -1;
-        int maxGrowIndex = 0;
-        int maxGrowTimes = 0;
-        for (int i = 0; i < len; i++) {
+
+        // sort by plantTime
+        int sortPoint;
+        int tmp;
+        for (int i = 1; i < len - 1; i++) {
+            if (growTime[i] > growTime[i - 1]) {
+                continue;
+            }
+            sortPoint = i;
+            while (sortPoint > 0 && growTime[sortPoint] == growTime[sortPoint - 1] && plantTime[sortPoint] < growTime[sortPoint - 1]) {
+                tmp = plantTime[sortPoint];
+                plantTime[sortPoint] = plantTime[sortPoint - 1];
+                plantTime[sortPoint - 1] = tmp;
+                sortPoint--;
+            }
+        }
+
+        // calculate
+        int sumTime = plantTime[0] + growTime[0];
+        for (int i = 1; i < len; i++) {
             int pt = plantTime[i];
             int gt = growTime[i];
-            sumPlantTime += pt;
-            if (gt == growTime[maxGrowIndex]) {
-                maxGrowTimes++;
-            }
-            if (gt > growTime[maxGrowIndex]) {
-                maxGrowIndex = i;
-                maxGrowTimes = 1;
-            }
-            if (gt < growTime[minGrowIndex]) {
-                if (pt + gt < growTime[minGrowIndex]) {
-                    secondMinGrowIndex = minGrowIndex;
-                } else {
-                    secondMinGrowIndex = -1;
-                }
-                minGrowIndex = i;
-            } else if (secondMinGrowIndex >= 0 && gt < growTime[secondMinGrowIndex]) {
-                if (plantTime[minGrowIndex] + growTime[minGrowIndex] < gt) {
-                    // lucky case only
-                    secondMinGrowIndex = i;
-                } else {
-                    secondMinGrowIndex = -1;
-                }
+
+            if (gt >= sumTime) {
+                sumTime = gt + pt;
+            } else {
+                sumTime += pt;
             }
         }
-        int gap = growTime[maxGrowIndex] - (sumPlantTime - plantTime[maxGrowIndex]) - plantTime[minGrowIndex];
-        if (maxGrowTimes == 1 && gap > 0) {
-            return sumPlantTime + gap;
-        } else {
-            int secondGap = secondMinGrowIndex >= 0? (growTime[secondMinGrowIndex] - plantTime[minGrowIndex] - growTime[minGrowIndex]):0;
-            return sumPlantTime + growTime[minGrowIndex] + secondGap;
-        }
+        return sumTime;
     }
 
+    private final Random random = new Random();
+
+    private void quickSort(int[] plantTime, int[] growTime, int low, int high) {
+        if (low < 0 || high <= low) {
+            return;
+        }
+        if (high - low > 5) {
+            // select a random pivot
+            int randomIndex = low + random.nextInt(high - low);
+            int tmp = plantTime[randomIndex];
+            plantTime[randomIndex] = plantTime[low];
+            plantTime[low] = tmp;
+            tmp = growTime[randomIndex];
+            growTime[randomIndex] = growTime[low];
+            growTime[low] = tmp;
+        }
+        int pivot = growTime[low];
+        int pivotPlant = plantTime[low];
+        int left = low;
+        int right = high;
+        while (left < right) {
+            while (left < right && growTime[right] > pivot) {
+                right--;
+            }
+            if (left < right) {
+                plantTime[left] = plantTime[right];
+                growTime[left] = growTime[right];
+                left++;
+            }
+            while (left < right && growTime[left] < pivot) {
+                left++;
+            }
+            if (left < right) {
+                plantTime[right] = plantTime[left];
+                growTime[right] = growTime[left];
+                right--;
+            }
+        }
+        growTime[left] = pivot;
+        plantTime[left] = pivotPlant;
+        quickSort(plantTime, growTime, low, left - 1);
+        quickSort(plantTime, growTime, left + 1, high);
+    }
 }

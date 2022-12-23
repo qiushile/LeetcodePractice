@@ -17,6 +17,8 @@ package cn.qiushile.leetcode.medium;
  * 1 <= prices.length <= 5000
  * 0 <= prices[i] <= 1000
  *
+ * Runtime 41 ms Beats 5% Memory 40.4 MB Beats 89.35%
+ *
  * @author qiushile <qiushile@sina.com>
  * @date 2022/12/23
  */
@@ -26,42 +28,34 @@ public class Solution0309 {
         if (len <= 1) {
             return 0;
         }
-        int index = 0;
-        int startPrice;
-        int earn = 0;
-        while (index <= len - 1) {
-            while (index < len - 1 && prices[index] >= prices[index + 1]) {
-                index++;
-            }
-            startPrice = prices[index];
-            index++;
-            while (index < len - 1 && (prices[index] <= prices[index + 1] || (index < len - 2 && prices[index + 2] > prices[index + 1]))) {
-                if (prices[index + 1] >= prices[index]) {
-                    index++;
-                    continue;
-                }
-                if (index < len - 2 && prices[index] > prices[index + 1] && prices[index + 2] > prices[index + 1]) {
-                    if (prices[index + 2] - startPrice > prices[index + 2] - prices[index + 1] + prices[index - 1] - startPrice
-                            && prices[index + 2] - startPrice > prices[index] - startPrice) {
-                        index = index + 2;
-                    } else if (prices[index + 2] - prices[index + 1] + prices[index - 1] - startPrice > prices[index] - startPrice) {
-                        earn += prices[index - 1] - startPrice;
-                        startPrice = prices[index];
-                        break;
-                    } else {
-                        earn += prices[index] - startPrice;
-                        index = index + 2;
-                        startPrice = prices[index];
-                        break;
-                    }
-                }
-            }
-
-            if (index <= len - 1 && prices[index] > startPrice) {
-                earn += prices[index] - startPrice;
-                continue;
-            }
+        int startDay = 0;
+        int[] earn = new int[len];
+        while (startDay < len - 1 && prices[startDay] >= prices[startDay + 1]) {
+            startDay++;
         }
-        return earn;
+
+        int currMax;
+        int tmp;
+        for (int currDay = startDay + 1; currDay < len; currDay++) {
+            currMax = prices[currDay] - prices[startDay];
+            if (currMax < 0) {
+                currMax = 0;
+            }
+            if (startDay > 1) {
+                currMax += earn[startDay -2];
+            }
+            for (int j = startDay + 1; j < currDay; j++) {
+                tmp = prices[currDay] - prices[j + 1];
+                tmp = tmp > 0? tmp + earn[j - 1]: earn[j - 1];
+                if (tmp > currMax) {
+                    currMax = tmp;
+                }
+            }
+            if (currMax < earn[currDay - 1]) {
+                currMax = earn[currDay - 1];
+            }
+            earn[currDay] = currMax;
+        }
+        return earn[len - 1];
     }
 }

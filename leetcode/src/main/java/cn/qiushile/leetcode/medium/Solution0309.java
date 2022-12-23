@@ -35,23 +35,28 @@ public class Solution0309 {
             }
             startPrice = prices[index];
             index++;
-            while (index < len - 1 && prices[index] <= prices[index + 1]) {
-                index++;
-            }
-            if (index < len - 2 && prices[index + 2] > prices[index + 1]) {
-                // earn more in next grow, only process one fluctuation
-                if (prices[index + 2] - startPrice > prices[index + 2] - prices[index + 1] + prices[index - 1] - startPrice
-                        && prices[index + 2] - startPrice > prices[index] - startPrice) {
-                    earn += prices[index + 2] - startPrice;
-                    index = index + 2;
-                } else if (prices[index + 2] - prices[index + 1] > prices[index] - prices[index - 1]) {
-                    earn += prices[index - 1] - startPrice;
-                } else {
-                    earn += prices[index] - startPrice;
-                    index = index + 2;
+            while (index < len - 1 && (prices[index] <= prices[index + 1] || (index < len - 2 && prices[index + 2] > prices[index + 1]))) {
+                if (prices[index + 1] >= prices[index]) {
+                    index++;
+                    continue;
                 }
-                continue;
+                if (index < len - 2 && prices[index] > prices[index + 1] && prices[index + 2] > prices[index + 1]) {
+                    if (prices[index + 2] - startPrice > prices[index + 2] - prices[index + 1] + prices[index - 1] - startPrice
+                            && prices[index + 2] - startPrice > prices[index] - startPrice) {
+                        index = index + 2;
+                    } else if (prices[index + 2] - prices[index + 1] + prices[index - 1] - startPrice > prices[index] - startPrice) {
+                        earn += prices[index - 1] - startPrice;
+                        startPrice = prices[index];
+                        break;
+                    } else {
+                        earn += prices[index] - startPrice;
+                        index = index + 2;
+                        startPrice = prices[index];
+                        break;
+                    }
+                }
             }
+
             if (index <= len - 1 && prices[index] > startPrice) {
                 earn += prices[index] - startPrice;
                 continue;

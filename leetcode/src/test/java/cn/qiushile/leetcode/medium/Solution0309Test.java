@@ -48,4 +48,9 @@ public class Solution0309Test {
     public void testMaxProfit202() {
         assertEquals(10, solution0309UnderTest.maxProfit(new int[]{1,3,5,4,3,7,6,9,2,4}));
     }
+
+    @Test
+    public void testMaxProfit203() {
+        assertEquals(10, solution0309UnderTest.maxProfit(new int[]{8,6,4,3,3,2,3,5,8,3,8,2,6}));
+    }
 }

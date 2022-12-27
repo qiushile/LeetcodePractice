@@ -1,5 +1,7 @@
 package cn.qiushile.leetcode.easy;
 
+import java.util.Arrays;
+
 /**
  * 2389. Longest Subsequence With Limited Sum
  * You are given an integer array nums of length n, and an integer array queries of length m.
@@ -21,50 +23,73 @@ package cn.qiushile.leetcode.easy;
  * m == queries.length
  * 1 <= n, m <= 1000
  * 1 <= nums[i], queries[i] <= 106
+ *
+ * Runtime 5 ms Beats 89.6% Memory 43.3 MB Beats 27.90%
  * @author qiushile <qiushile@sina.com>
  * @date 2022/12/25
  */
 public class Solution2389 {
     public int[] answerQueries(int[] nums, int[] queries) {
-        int maxNum = 0;
         int n = nums.length;
         int m = queries.length;
+        Arrays.sort(nums);
+        for (int i = 1; i < n; i++) {
+            nums[i] += nums[i - 1];
+        }
+
+        int[] sorted = new int[m];
         for (int i = 0; i < m; i++) {
-            if (queries[i] > maxNum) {
-                maxNum = queries[i];
-            }
+            sorted[i] = i;
         }
-        int[] ans = new int[maxNum + 1];
-        int[][] calc = new int[n + 1][n + 1];
-        for (int i = 0; i < n; i++) {
-            calc[i][i] = nums[i];
-            if (nums[i] <= maxNum && ans[nums[i]] < 1) {
-                ans[nums[i]] = 1;
+        quickSort(queries, 0, m - 1, sorted);
+
+        int[] ans = new int[m];
+        int numsIndex = 0;
+        int queriesIndex = 0;
+        while (queriesIndex < m) {
+            while (numsIndex < n && queries[queriesIndex] >= nums[numsIndex]) {
+                numsIndex++;
             }
+            ans[sorted[queriesIndex]] = numsIndex;
+            queriesIndex++;
         }
-        int sum;
-        for (int i = 0; i < n; i++) {
-            sum = calc[i][i];
-            for (int j = i + 1; j < n; j++) {
-                sum += nums[j];
-                if (sum > maxNum) {
-                    break;
+        return ans;
+    }
+
+    /**
+     * This method is copied from https://www.cnblogs.com/zhaoke271828/p/14731184.html
+     * @param keys
+     * @param begin
+     * @param end
+     * @param indices
+     */
+    private static void quickSort(int[] keys, int begin, int end, int[] indices) {
+        if (begin >= 0 && begin < keys.length && end >= 0 && end < keys.length && begin < end) {
+            int i = begin, j = end;
+            int vot = keys[i];
+            int temp = indices[i];
+            while (i != j) {
+                while (i < j && keys[j] >= vot) {
+                    j--;
                 }
-                calc[i][j] = sum;
-                if (ans[sum] < j - i + 1) {
-                    ans[sum] = j - i + 1;
+                if(i < j) {
+                    keys[i] = keys[j];
+                    indices[i] = indices[j];
+                    i++;
+                }
+                while(i < j && keys[i] <= vot) {
+                    i++;
+                }
+                if(i < j) {
+                    keys[j] = keys[i];
+                    indices[j] = indices[i];
+                    j--;
                 }
             }
+            keys[i] = vot;
+            indices[i] = temp;
+            quickSort(keys, begin, j-1, indices);
+            quickSort(keys, i+1, end, indices);
         }
-        for (int i = 1; i < ans.length; i++) {
-            if (ans[i] < ans[i - 1]) {
-                ans[i] = ans[i - 1];
-            }
-        }
-        int[] result = new int[m];
-        for (int i = 0; i < m; i++) {
-            result[i] = ans[queries[i]];
-        }
-        return result;
     }
 }

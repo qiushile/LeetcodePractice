@@ -34,11 +34,11 @@ public class Solution0797 {
         List<List<Integer>> ans = new ArrayList<>();
         LinkedList<Integer> queue = new LinkedList<>();
         queue.add(0);
-        bfs(ans, queue, graph);
+        dfs(ans, queue, graph);
         return ans;
     }
 
-    private void bfs(List<List<Integer>> ans, LinkedList<Integer> queue, int[][] graph) {
+    private void dfs(List<List<Integer>> ans, LinkedList<Integer> queue, int[][] graph) {
         int[] linked = graph[queue.getLast()];
         for (int i = 0; i < linked.length; i++) {
             if (linked[i] == graph.length - 1) {
@@ -52,7 +52,7 @@ public class Solution0797 {
                 continue;
             }
             queue.add(linked[i]);
-            bfs(ans, queue, graph);
+            dfs(ans, queue, graph);
             queue.removeLast();
         }
     }

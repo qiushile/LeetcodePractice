@@ -27,6 +27,8 @@ import java.util.Map;
  * s contains only lowercase English letters and spaces ' '.
  * s does not contain any leading or trailing spaces.
  * All the words in s are separated by a single space.
+ *
+ * Runtime 2 ms Beats 38.63% Memory 40.2 MB Beats 80.47%
  * @author qiushile <qiushile@sina.com>
  * @date 2023/1/1
  */
@@ -34,33 +36,25 @@ public class Solution0290 {
     public boolean wordPattern(String pattern, String s) {
         String[] words = s.split(" ");
         String[] ps = pattern.split("");
+        if (words.length != ps.length) {
+            return false;
+        }
         Map<String, String> map = new HashMap<>();
-        boolean match = false;
-        for (int i = 0; i <= words.length - ps.length; i++) {
-            match = true;
-            for (int j = 0; j < ps.length; j++) {
-                if (map.containsKey(ps[j])) {
-                    if (!map.get(ps[j]).equals(words[i + j])) {
-                        match = false;
-                        break;
-                    }
-                } else {
-                    if (map.containsKey("v:" + words[i + j])) {
-                        if (!map.get("v:" + words[i + j]).equals(ps[j])) {
-                            match = false;
-                            break;
-                        }
-                    }
-                    map.put(ps[j], words[i + j]);
-                    map.put("v:" + words[i + j], ps[j]);
+        for (int i = 0; i < ps.length; i++) {
+            if (map.containsKey(ps[i])) {
+                if (!map.get(ps[i]).equals(words[i])) {
+                    return false;
                 }
-            }
-            if (match) {
-                return true;
             } else {
-                map.clear();
+                if (map.containsKey("v:" + words[i])) {
+                    if (!map.get("v:" + words[i]).equals(ps[i])) {
+                        return false;
+                    }
+                }
+                map.put(ps[i], words[i]);
+                map.put("v:" + words[i], ps[i]);
             }
         }
-        return false;
+        return true;
     }
 }

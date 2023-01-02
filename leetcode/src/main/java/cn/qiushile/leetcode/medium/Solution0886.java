@@ -1,4 +1,4 @@
-package cn.qiushile.leetcode;
+package cn.qiushile.leetcode.medium;
 
 import java.util.ArrayList;
 import java.util.LinkedList;
@@ -49,7 +49,7 @@ public class Solution0886 {
                 people[p2].addRelation(p1);
             }
         }
-        LinkedList<Person> solePersons = new LinkedList<Person>();
+        LinkedList<Person> solePersons = new LinkedList<>();
         // find solo-like persons
         for (int i = 1; i < n + 1; i++) {
             if (null != people[i] && people[i].relatedPersons.size() <= 1) {
@@ -72,7 +72,7 @@ public class Solution0886 {
 
         // people who already visited， 1 or 2
         int[] linked = new int[n+1];
-        LinkedList<Integer> linkedList = new LinkedList<Integer>();
+        LinkedList<Integer> linkedList = new LinkedList<>();
 
         for (int i = 1; i < n + 1; i++) {
             if (people[i] == null || linked[i] > 0) {
@@ -125,7 +125,7 @@ public class Solution0886 {
         private Person() {}
         public Person(int val) {
             this.val = val;
-            this.relatedPersons = new ArrayList<Integer>();
+            this.relatedPersons = new ArrayList<>();
         }
         public Person(int val, Integer relatedNum) {
             this(val);

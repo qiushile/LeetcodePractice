@@ -1,4 +1,4 @@
-package cn.qiushile.leetcode;
+package cn.qiushile.leetcode.easy;
 
 import java.util.LinkedList;
 import java.util.Queue;
@@ -28,7 +28,7 @@ public class Solution0226 {
         if (root == null) {
             return null;
         }
-        Queue<TreeNode> queue = new LinkedList<TreeNode>();
+        Queue<TreeNode> queue = new LinkedList<>();
         queue.add(root);
         while (!queue.isEmpty()) {
             TreeNode current = queue.poll();

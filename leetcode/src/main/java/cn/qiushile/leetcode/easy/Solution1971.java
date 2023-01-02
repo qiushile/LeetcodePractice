@@ -1,4 +1,4 @@
-package cn.qiushile.leetcode;
+package cn.qiushile.leetcode.easy;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -24,7 +24,7 @@ public class Solution1971 {
         source++;
         destination++;
 
-        int links[] = new int[n];
+        int[] links = new int[n];
         int tmp;
         for (int[] edge : edges) {
             int left = edge[0] + 1;
@@ -109,15 +109,6 @@ public class Solution1971 {
         if (secondLeft == secondRight) {
             links[right] = left;
             return;
-        //} else if (secondLeft < secondRight) {
-        //    links[right] = left;
-        //    links[left] = secondRight;
-        //    merge(links, secondLeft, secondRight);
-        //    return;
-        //} else if (secondLeft > secondRight) {
-        //    links[right] = left;
-        //    merge(links, secondLeft, secondRight);
-        //    return;
         } else {
             links[right] = left;
             merge(links, secondRight, left);
@@ -136,7 +127,7 @@ public class Solution1971 {
             return true;
         }
 
-        List<Set<Integer>> setList = new ArrayList<Set<Integer>>();
+        List<Set<Integer>> setList = new ArrayList<>();
         for (int[] edge : edges) {
             int left = edge[0];
             int right = edge[1];
@@ -155,7 +146,7 @@ public class Solution1971 {
                 }
             }
             if (leftPosition < 0 && rightPosition < 0) {
-                Set<Integer> link = new HashSet<Integer>();
+                Set<Integer> link = new HashSet<>();
                 link.add(left);
                 link.add(right);
                 setList.add(link);

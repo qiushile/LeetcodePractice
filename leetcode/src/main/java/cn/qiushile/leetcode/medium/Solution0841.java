@@ -1,4 +1,4 @@
-package cn.qiushile.leetcode;
+package cn.qiushile.leetcode.medium;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -42,7 +42,7 @@ public class Solution0841 {
         int[] keys = new int[roomNum + 1];
         keys[1] = 1;
         int keyNum = 1;
-        LinkedList<Integer> workList = new LinkedList<Integer>();
+        LinkedList<Integer> workList = new LinkedList<>();
         workList.add(1);
         keyNum += unlockRooms(rooms, keys, workList);
 

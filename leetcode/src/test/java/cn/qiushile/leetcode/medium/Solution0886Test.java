@@ -1,4 +1,4 @@
-package cn.qiushile.leetcode;
+package cn.qiushile.leetcode.medium;
 
 import org.junit.Before;
 import org.junit.Test;

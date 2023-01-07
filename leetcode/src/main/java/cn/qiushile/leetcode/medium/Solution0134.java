@@ -43,12 +43,22 @@ package cn.qiushile.leetcode.medium;
 public class Solution0134 {
     public int canCompleteCircuit(int[] gas, int[] cost) {
         int n = gas.length;
+        int sum = 0;
         int[] remain = new int[n];
         int[] available = new int[n];
         int[] tillPoint = new int[n];
         int[] tillSum = new int[n];
         for (int i = 0; i < n; i++) {
             remain[i] = gas[i] - cost[i];
+            sum += remain[i];
+        }
+        if (sum < 0) {
+            return -1;
+        }
+        if (n == 1) {
+            return remain[0] < 0? -1 : 0;
+        }
+        for (int i = 0; i < n; i++) {
             if (remain[i] < 0) {
                 available[i] = -1;
                 tillPoint[i] = -1;
@@ -56,9 +66,6 @@ public class Solution0134 {
                 tillPoint[i] = (i + 1) % n;
                 tillSum[i] = remain[i];
             }
-        }
-        if (n == 1) {
-            return remain[0] < 0? -1 : 0;
         }
         for (int i = 0; i < n; i++) {
             if (available[i] == -1) {

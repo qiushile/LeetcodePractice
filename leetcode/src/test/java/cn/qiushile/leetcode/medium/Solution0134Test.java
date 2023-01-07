@@ -23,4 +23,14 @@ public class Solution0134Test {
     public void testCanCompleteCircuit02() {
         assertEquals(-1, solution0134UnderTest.canCompleteCircuit(new int[]{2,3,4}, new int[]{3,4,3}));
     }
+
+    @Test
+    public void testCanCompleteCircuit29() {
+        assertEquals(0, solution0134UnderTest.canCompleteCircuit(new int[]{3,1,1}, new int[]{1,2,2}));
+    }
+
+    @Test
+    public void testCanCompleteCircuit32() {
+        assertEquals(0, solution0134UnderTest.canCompleteCircuit(new int[]{5}, new int[]{4}));
+    }
 }

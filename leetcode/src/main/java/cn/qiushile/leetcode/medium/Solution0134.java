@@ -34,6 +34,9 @@ package cn.qiushile.leetcode.medium;
  * n == gas.length == cost.length
  * 1 <= n <= 105
  * 0 <= gas[i], cost[i] <= 104
+ * Failed:
+ * Memory Limit Exceeded at 32/37
+ * Time Limit Exceeded at 34/37
  * @author qiushile <qiushile@sina.com>
  * @date 2023/1/7
  */
@@ -41,30 +44,57 @@ public class Solution0134 {
     public int canCompleteCircuit(int[] gas, int[] cost) {
         int n = gas.length;
         int[] remain = new int[n];
-        int[][] costs = new int[n][n];
         int[] available = new int[n];
+        int[] tillPoint = new int[n];
+        int[] tillSum = new int[n];
         for (int i = 0; i < n; i++) {
             remain[i] = gas[i] - cost[i];
-            costs[i][i] = 0;
-            for (int j = 0; j < i + 1; j++) {
-                costs[j][(i + 1) % n] = costs[j][i] + remain[i];
-                if (costs[j][(i + 1) % n] < 0) {
-                    available[j] = -1;
-                }
+            if (remain[i] < 0) {
+                available[i] = -1;
+                tillPoint[i] = -1;
+            } else {
+                tillPoint[i] = (i + 1) % n;
+                tillSum[i] = remain[i];
             }
         }
-        if (costs[0][n - 1] + costs[n - 1][0] < 0) {
-            return -1;
+        if (n == 1) {
+            return remain[0] < 0? -1 : 0;
         }
-        for (int i = n - 1; i >= 0; i--) {
-            for (int j = 1; j < i; j++) {
-                costs[i][j] = costs[i][n - 1] + costs[n - 1][0] + costs[0][j];
-                if (costs[i][j] < 0) {
-                    available[i] = -1;
-                }
+        for (int i = 0; i < n; i++) {
+            if (available[i] == -1) {
+                continue;
             }
-            if (available[i] > -1) {
-                return i;
+            int j = (i + 1) % n;
+            // calculate from i + 1 to i - 1
+            while (j != i) {
+                if (available[j] == -1) {
+                    int currSum = tillSum[i] + remain[j];
+                    if (currSum < 0) {
+                        available[i] = -1;
+                        break;
+                    } else {
+                        tillPoint[i] = j;
+                        tillSum[i] = currSum;
+                        if (j == (i - 1 + n)% n) {
+                            return i;
+                        }
+                    }
+                    j = (j + 1) % n;
+                } else {
+                    int nextj = tillPoint[j];
+                    if (i < j) {
+                        if (nextj >= (i - 1 + n)% n && nextj < j) {
+                            return i;
+                        }
+                    } else {
+                        if (nextj >= i - 1) {
+                            return i;
+                        }
+                    }
+                    tillSum[i] += tillSum[j];
+                    tillPoint[i] = nextj;
+                    j = nextj;
+                }
             }
         }
         return -1;

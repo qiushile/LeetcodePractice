@@ -49,38 +49,35 @@ import java.util.Set;
  * board[i][j] is a digit 1-9 or '.'.
  * Failed:
  *      Wrong Answer at 471 / 507
+ * Accepted:
+ *      Runtime 3 ms Beats 82.75% Memory 42.2 MB Beats 89.91%
  * @author qiushile <qiushile@sina.com>
  * @date 2023/1/7
  */
 public class Solution0036 {
     public boolean isValidSudoku(char[][] board) {
+        // each row
         List<Set<Integer>> list1 = new ArrayList<>(9);
+        // each column
         List<Set<Integer>> list2 = new ArrayList<>(9);
+        // each 3 * 3
+        List<Set<Integer>> list3 = new ArrayList<>(9);
         for (int i = 0; i < 9; i++) {
             list1.add(new HashSet<Integer>(9));
             list2.add(new HashSet<Integer>(9));
+            list3.add(new HashSet<Integer>(9));
         }
         for (int i = 0; i < 9; i++) {
             for (int j = 0; j < 9; j++) {
                 if (board[i][j] != '.') {
                     int num = board[i][j] - '0';
-                    if (list1.get(i).contains(num) || list2.get(j).contains(num)) {
+                    int k = i / 3 * 3 + j / 3;
+                    if (list1.get(i).contains(num) || list2.get(j).contains(num) || list3.get(k).contains(num)) {
                         return false;
                     }
                     list1.get(i).add(num);
                     list2.get(j).add(num);
-                }
-            }
-        }
-        for (int i = 0; i < 9; i++) {
-            for (int j = 0; j < 9; j++) {
-                if (board[i][j] == '.') {
-                    Set<Integer> exists = new HashSet<>(9);
-                    exists.addAll(list1.get(i));
-                    exists.addAll(list2.get(j));
-                    if (exists.size() == 9) {
-                        return false;
-                    }
+                    list3.get(k).add(num);
                 }
             }
         }

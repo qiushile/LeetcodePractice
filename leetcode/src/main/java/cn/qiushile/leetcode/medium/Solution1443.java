@@ -35,7 +35,7 @@ import java.util.Set;
  * fromi < toi
  * hasApple.length == n
  * Accepted 33.8K Submissions 60.1K Acceptance Rate 56.3%
- *
+ * Runtime 40 ms Beats 82.94% Memory 85.3 MB Beats 70%
  * @author qiushile <qiushile@sina.com>
  * @date 2023/1/11
  */
@@ -43,6 +43,8 @@ public class Solution1443 {
     public int minTime(int n, int[][] edges, List<Boolean> hasApple) {
         Set<Integer> ans = new HashSet<>();
         Queue<Integer> queue = new LinkedList<>();
+        Set<Integer> exists = new HashSet<>();
+        exists.add(0);
         for (int i = 0; i < hasApple.size(); i++) {
             if (hasApple.get(i)) {
                 ans.add(i);
@@ -54,12 +56,20 @@ public class Solution1443 {
         }
         Map<Integer, Integer> father = new HashMap<>();
         for (int[] edge : edges) {
-            if (ans.contains(edge[1])) {
-                ans.add(edge[0]);
-                queue.add(edge[0]);
-            } else {
-                father.put(edge[1], edge[0]);
+            int up = edge[0];
+            int down = edge[1];
+            if (exists.contains(edge[1]) && !exists.contains(edge[0])) {
+                up = edge[1];
+                down = edge[0];
             }
+            if (ans.contains(down)) {
+                ans.add(up);
+                queue.add(up);
+            } else {
+                father.put(down, up);
+            }
+            exists.add(down);
+            exists.add(up);
         }
         while (!queue.isEmpty()) {
             Integer next = queue.poll();

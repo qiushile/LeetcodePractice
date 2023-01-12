@@ -53,11 +53,8 @@ public class Solution1519 {
     public int[] countSubTrees(int n, int[][] edges, String labels) {
         char[] ch = labels.toCharArray();
         Set<Integer>[] sets = new HashSet[n];
-        StringBuilder[] all = new StringBuilder[n];
         for (int i = 0; i < n; i++) {
             sets[i] = new HashSet<>();
-            all[i] = new StringBuilder();
-            all[i].append(ch[i]);
         }
         for (int[] edge : edges) {
             sets[edge[0]].add(edge[1]);
@@ -82,20 +79,21 @@ public class Solution1519 {
         }
         while (!process.isEmpty()) {
             Integer curr = process.poll();
+            sets[curr].add(curr);
             if (!parent.containsKey(curr)) {
                 continue;
             }
             Integer p = parent.get(curr);
-            all[p].append(all[curr]);
+            sets[p].addAll(sets[curr]);
             if (process.isEmpty() || !process.getLast().equals(p)) {
                 process.add(p);
             }
         }
         int[] ans = new int[n];
         for (int i = 0; i < n; i++) {
-            String str = all[i].toString();
-            for (int j = 0; j < str.length(); j++) {
-                if (str.charAt(j) == ch[i]) {
+            Set<Integer> descendant = sets[i];
+            for (Integer child : descendant) {
+                if (ch[child] == ch[i]) {
                     ans[i]++;
                 }
             }

@@ -1,8 +1,9 @@
 package cn.qiushile.leetcode.hard;
 
-import java.util.HashMap;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.LinkedList;
-import java.util.Map;
+import java.util.List;
 import java.util.Queue;
 
 /**
@@ -23,12 +24,8 @@ import java.util.Queue;
  * Constraints:
  * The number of nodes in the tree is in the range [0, 104].
  * -1000 <= Node.val <= 1000
- * Accepted
- * 711.6K
- * Submissions
- * 1.3M
- * Acceptance Rate
- * 55.2%
+ * Accepted 711.6K Submissions 1.3M Acceptance Rate 55.2%
+ * Runtime 13 ms Beats 79.1% Memory 43.7 MB Beats 92.93%
  * @author qiushile <qiushile@sina.com>
  * @date 2023/1/11
  */
@@ -40,31 +37,32 @@ public class Solution0297 {
         } else if (root.left == null && root.right == null) {
             return "" + root.val;
         }
-        Queue<TreeNode> queue = new LinkedList<>();
-        queue.add(root);
+        Queue<TreeNode> curr = new LinkedList<>();
+        Queue<TreeNode> next = new LinkedList<>();
+        curr.add(root);
         StringBuilder sb = new StringBuilder();
         sb.append(root.val);
-        while (!queue.isEmpty()) {
-            TreeNode node = queue.poll();
+        while (!curr.isEmpty()) {
+            TreeNode node = curr.poll();
             TreeNode left = node.left;
             TreeNode right = node.right;
-            sb.append("(");
+            sb.append(",");
             if (left != null) {
                 sb.append(left.val);
-                if (left.left != null || left.right != null) {
-                    queue.add(left);
-                }
+                next.add(left);
             }
             sb.append(",");
             if (right != null) {
                 sb.append(right.val);
-                if (right.left != null || right.right != null) {
-                    queue.add(right);
-                }
+                next.add(right);
             }
-            sb.append(",");
-            sb.append(node.val);
-            sb.append(")");
+            if (curr.isEmpty()) {
+                curr = next;
+                next = new LinkedList<>();
+            }
+        }
+        while (sb.charAt(sb.length() - 1) == ',') {
+            sb.deleteCharAt(sb.length() - 1);
         }
         return sb.toString();
     }
@@ -74,24 +72,41 @@ public class Solution0297 {
         if (data == null || data.length() == 0) {
             return null;
         }
-        String[] list = data.split("\\(");
+        String[] list = data.split(",");
         TreeNode root = new TreeNode(Integer.parseInt(list[0]));
         if (list.length == 0) {
             return root;
         }
-        Map<Integer, TreeNode> map = new HashMap<>();
-        map.put(root.val, root);
-        for (int i = 1; i < list.length; i++) {
-            String[] nodeData = list[i].substring(0, list[i].length() - 1).split("\\,");
-            TreeNode parent = map.get(Integer.parseInt(nodeData[2]));
-            if (nodeData[0].length() > 0) {
-                parent.left = new TreeNode(Integer.parseInt(nodeData[0]));
-                map.put(parent.left.val, parent.left);
+        Integer[] nums = Arrays.stream(list).map(n -> n.length() > 0? Integer.parseInt(n): null).toArray(Integer[]::new);
+        List<TreeNode> last = new ArrayList<>();
+        List<TreeNode> curr = new ArrayList<>();
+        int n = nums.length;
+        //TreeNode root = new TreeNode(nums[0]);
+        last.add(root);
+        int start = 1;
+        int end = -1;
+        int count = 1;
+        int i = 0;
+        while (i < n) {
+            end = start + count * 2;
+            count = 0;
+            for (i = start; i < end && i < n; i++) {
+                Integer num = nums[i];
+                if (num != null) {
+                    count++;
+                    TreeNode node = new TreeNode(num);
+                    curr.add(node);
+                    TreeNode parent = last.get((i - start) / 2);
+                    if ((i - start) % 2 == 0) {
+                        parent.left = node;
+                    } else {
+                        parent.right = node;
+                    }
+                }
             }
-            if (nodeData[1].length() > 0) {
-                parent.right = new TreeNode(Integer.parseInt(nodeData[1]));
-                map.put(parent.right.val, parent.right);
-            }
+            start = end;
+            last = curr;
+            curr = new ArrayList<>();
         }
         return root;
     }

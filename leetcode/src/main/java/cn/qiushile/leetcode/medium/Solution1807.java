@@ -1,6 +1,8 @@
 package cn.qiushile.leetcode.medium;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * 1807. Evaluate the Bracket Pairs of a String
@@ -49,19 +51,29 @@ import java.util.List;
  * 34.9K
  * Acceptance Rate
  * 66.9%
+ * Runtime 38 ms Beats 92.66% Memory 81.4 MB Beats 82.63%Runtime 38 ms Beats 92.66% Memory 81.4 MB Beats 82.63%
  * @author qiushile <qiushile@sina.com>
  * @date 2023/1/12
  */
 public class Solution1807 {
     public String evaluate(String s, List<List<String>> knowledge) {
+        Map<String, String> map = new HashMap<>(knowledge.size());
         for (List<String> list : knowledge) {
-            s = s.replaceAll("\\(" + list.get(0) + "\\)", list.get(1));
+            map.put(list.get(0), list.get(1));
         }
-        int left, right;
-        while ((left = s.indexOf("(")) > -1) {
-            right = s.indexOf(")");
-            s = s.replaceAll("\\(" + s.substring(left + 1, right) + "\\)", "?");
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < s.length(); i++) {
+            if (s.charAt(i) == '(') {
+                int j = i + 1;
+                while (s.charAt(j) != ')') {
+                    j++;
+                }
+                sb.append(map.getOrDefault(s.substring(i + 1, j), "?"));
+                i = j;
+            } else {
+                sb.append(s.charAt(i));
+            }
         }
-        return s;
+        return sb.toString();
     }
 }

@@ -46,12 +46,50 @@ import java.util.Set;
  * 48.4K
  * Acceptance Rate
  * 41.6%
+ * BFS:
  * Runtime 271 ms Beats 38.4% Memory 127.2 MB Beats 81.52%
+ * DFS:
+ * Runtime 174 ms Beats 55.43% Memory 145.8 MB Beats 66.30%
  * @author qiushile <qiushile@sina.com>
  * @date 2023/1/12
  */
 public class Solution1519 {
     public int[] countSubTrees(int n, int[][] edges, String labels) {
+        // bfs part
+        //return bfs(n, edges, labels);
+
+        // dfs part
+        int[] ans = new int[n];
+        char[] ch = labels.toCharArray();
+        Map<Integer, Set<Integer>> map = new HashMap<>(n);
+        for (int[] edge : edges) {
+            map.computeIfAbsent(edge[0], s -> new HashSet<>()).add(edge[1]);
+            map.computeIfAbsent(edge[1], s -> new HashSet<>()).add(edge[0]);
+        }
+        dfs(0, -1, map, ch, ans);
+        return ans;
+    }
+
+    private int[] dfs(int curr, int parent, Map<Integer, Set<Integer>> map, char[] ch, int[] ans) {
+        int[] counts = new int[26];
+        counts[ch[curr] - 'a'] = 1;
+        if (map.containsKey(curr)) {
+            Set<Integer> relations = map.get(curr);
+            for (Integer relation : relations) {
+                if (!relation.equals(parent)) {
+                    int[] childCounts = dfs(relation, curr, map, ch, ans);
+                    for (int i = 0; i < 26; i++) {
+                        counts[i] += childCounts[i];
+                    }
+                }
+            }
+        }
+        ans[curr] = counts[ch[curr] - 'a'];
+        return counts;
+    }
+
+    // bottom up: start from leaf nodes
+    public int[] bfs(int n, int[][] edges, String labels) {
         char[] ch = labels.toCharArray();
         Map<Integer, Set<Integer>> map = new HashMap<>(n);
         for (int[] edge : edges) {

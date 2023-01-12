@@ -46,57 +46,46 @@ import java.util.Set;
  * 48.4K
  * Acceptance Rate
  * 41.6%
+ * Runtime 271 ms Beats 38.4% Memory 127.2 MB Beats 81.52%
  * @author qiushile <qiushile@sina.com>
  * @date 2023/1/12
  */
 public class Solution1519 {
     public int[] countSubTrees(int n, int[][] edges, String labels) {
         char[] ch = labels.toCharArray();
-        Set<Integer>[] sets = new HashSet[n];
-        for (int i = 0; i < n; i++) {
-            sets[i] = new HashSet<>();
-        }
+        Map<Integer, Set<Integer>> map = new HashMap<>(n);
         for (int[] edge : edges) {
-            sets[edge[0]].add(edge[1]);
-            sets[edge[1]].add(edge[0]);
+            map.computeIfAbsent(edge[0], s -> new HashSet<>()).add(edge[1]);
+            map.computeIfAbsent(edge[1], s -> new HashSet<>()).add(edge[0]);
         }
-        Map<Integer, Integer> parent = new HashMap<>(n - 1);
+
+        int[][] counts = new int[n][26];
+        counts[0][ch[0] - 'a'] = 1;
+
         Queue<Integer> queue = new LinkedList<>();
-        LinkedList<Integer> process = new LinkedList<>();
-        queue.add(0);
+        for (int i = 1; i < n; i++) {
+            counts[i][ch[i] - 'a'] = 1;
+            if (map.get(i).size() == 1) {
+                // leaf node
+                queue.offer(i);
+            }
+        }
         while (!queue.isEmpty()) {
             Integer curr = queue.poll();
-            Set<Integer> children = sets[curr];
-            if (!children.isEmpty()) {
-                for (Integer child : children) {
-                    parent.put(child, curr);
-                    queue.add(child);
-                    sets[child].remove(curr);
-                }
-            } else {
-                process.add(curr);
+            Set<Integer> relation = map.get(curr);
+            Integer parent = relation.stream().findFirst().get();
+            for (int i = 0; i < 26; i++) {
+                counts[parent][i] += counts[curr][i];
             }
-        }
-        while (!process.isEmpty()) {
-            Integer curr = process.poll();
-            sets[curr].add(curr);
-            if (!parent.containsKey(curr)) {
-                continue;
-            }
-            Integer p = parent.get(curr);
-            sets[p].addAll(sets[curr]);
-            if (process.isEmpty() || !process.getLast().equals(p)) {
-                process.add(p);
+            map.get(parent).remove(curr);
+            if (parent != 0 && map.get(parent).size() == 1) {
+                // only one relation: parent node
+                queue.offer(parent);
             }
         }
         int[] ans = new int[n];
         for (int i = 0; i < n; i++) {
-            Set<Integer> descendant = sets[i];
-            for (Integer child : descendant) {
-                if (ch[child] == ch[i]) {
-                    ans[i]++;
-                }
-            }
+            ans[i] = counts[i][ch[i] - 'a'];
         }
         return ans;
     }

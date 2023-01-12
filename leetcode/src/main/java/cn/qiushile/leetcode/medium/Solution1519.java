@@ -87,7 +87,7 @@ public class Solution1519 {
             }
             Integer p = parent.get(curr);
             all[p].append(all[curr]);
-            if (!process.isEmpty() && !process.getLast().equals(p)) {
+            if (process.isEmpty() || !process.getLast().equals(p)) {
                 process.add(p);
             }
         }

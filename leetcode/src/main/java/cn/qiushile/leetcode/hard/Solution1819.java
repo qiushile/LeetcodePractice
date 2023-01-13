@@ -45,14 +45,14 @@ public class Solution1819 {
         int result = ans.size();
         for (int i = max / 2; i > 1; i--) {
             if (!ans.contains(i)) {
-                boolean found = false;
+                int last = -1;
                 for (int j = 2; j <= max / i; j++) {
                     if (ans.contains(i * j)) {
-                        if (found) {
+                        if (last > 0 && gcd(j, last) == 1) {
                             result++;
                             break;
                         } else {
-                            found = true;
+                            last = j;
                         }
                     }
                 }
@@ -67,5 +67,22 @@ public class Solution1819 {
             }
         }
         return result;
+    }
+
+    private Integer gcd(int a, int b) {
+        if (a == b) {
+            return a;
+        }
+        while (b != 0) {
+            a %= b;
+            if (a == 0) {
+                return b;
+            }
+            b %= a;
+            if (b == 0) {
+                return a;
+            }
+        }
+        return a;
     }
 }

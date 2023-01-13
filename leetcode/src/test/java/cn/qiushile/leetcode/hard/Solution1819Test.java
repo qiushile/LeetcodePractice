@@ -23,4 +23,9 @@ public class Solution1819Test {
     public void testCountDifferentSubsequenceGCDs02() {
         assertEquals(7, solution1819UnderTest.countDifferentSubsequenceGCDs(new int[]{5,15,40,5,6}));
     }
+
+    @Test
+    public void testCountDifferentSubsequenceGCDs09() {
+        assertEquals(5, solution1819UnderTest.countDifferentSubsequenceGCDs(new int[]{13,7,4,16,1}));
+    }
 }

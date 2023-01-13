@@ -2,7 +2,6 @@ package cn.qiushile.leetcode.hard;
 
 import java.util.Arrays;
 import java.util.HashSet;
-import java.util.LinkedList;
 import java.util.Set;
 
 /**
@@ -38,42 +37,35 @@ public class Solution1819 {
             return 1;
         }
         Set<Integer> ans = new HashSet<>();
-        LinkedList<Integer> list = new LinkedList<>();
-        LinkedList<Integer> addList = new LinkedList<>();
         Arrays.sort(nums);
-        for (int i = n - 1; i >= 0; i--) {
-            list.add(nums[i]);
+        int max = nums[n - 1];
+        for (int i = 0; i < n; i++) {
             ans.add(nums[i]);
         }
-        while (!list.isEmpty()) {
-            Integer curr = list.poll();
-            for (Integer num : list) {
-                Integer g = gcd(curr, num);
-                if (!ans.contains(g)) {
-                    ans.add(g);
-                    addList.add(g);
+        int result = ans.size();
+        for (int i = max / 2; i > 1; i--) {
+            if (!ans.contains(i)) {
+                boolean found = false;
+                for (int j = 2; j <= max / i; j++) {
+                    if (ans.contains(i * j)) {
+                        if (found) {
+                            result++;
+                            break;
+                        } else {
+                            found = true;
+                        }
+                    }
                 }
             }
-            list.addAll(addList);
-            addList.clear();
         }
-        return ans.size();
-    }
-
-    private Integer gcd(int a, int b) {
-        if (a == b) {
-            return a;
-        }
-        while (b != 0) {
-            a %= b;
-            if (a == 0) {
-                return b;
-            }
-            b %= a;
-            if (b == 0) {
-                return a;
+        if (!ans.contains(1)) {
+            for (int i = 1; i < n; i++) {
+                if (nums[i] % nums[i - 1] > 0) {
+                    result++;
+                    break;
+                }
             }
         }
-        return a;
+        return result;
     }
 }

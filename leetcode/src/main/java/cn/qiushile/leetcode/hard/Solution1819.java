@@ -1,6 +1,5 @@
 package cn.qiushile.leetcode.hard;
 
-import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -37,39 +36,31 @@ public class Solution1819 {
             return 1;
         }
         Set<Integer> ans = new HashSet<>();
-        Arrays.sort(nums);
-        int max = nums[n - 1];
+        int max = nums[0];
         for (int i = 0; i < n; i++) {
             ans.add(nums[i]);
-        }
-        int result = ans.size();
-        for (int i = max / 2; i > 1; i--) {
-            if (!ans.contains(i)) {
-                int last = -1;
-                for (int j = 2; j <= max / i; j++) {
-                    if (ans.contains(i * j)) {
-                        if (last > 0 && gcd(j, last) == 1) {
-                            result++;
-                            break;
-                        } else {
-                            last = j;
-                        }
-                    }
-                }
+            if (max < nums[i]) {
+                max = nums[i];
             }
         }
-        if (!ans.contains(1)) {
-            for (int i = 1; i < n; i++) {
-                if (nums[i] % nums[i - 1] > 0) {
+        int result = ans.size();
+        for (int i = max / 2; i >= 1; i--) {
+            if (!ans.contains(i)) {
+                int last = -1;
+                for (int j = 2; j <= max / i && last != 1; j++) {
+                    if (ans.contains(i * j)) {
+                        last = last < 0 ? j: gcd(j, last);
+                    }
+                }
+                if (last == 1) {
                     result++;
-                    break;
                 }
             }
         }
         return result;
     }
 
-    private Integer gcd(int a, int b) {
+    private int gcd(int a, int b) {
         if (a == b) {
             return a;
         }

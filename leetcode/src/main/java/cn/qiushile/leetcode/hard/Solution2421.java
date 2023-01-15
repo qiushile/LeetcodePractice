@@ -1,6 +1,7 @@
 package cn.qiushile.leetcode.hard;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -45,93 +46,59 @@ import java.util.Queue;
  * 0 <= ai, bi < n
  * ai != bi
  * edges represents a valid tree.
- *
+ * Runtime 102 ms Beats 82.25% Memory 66.9 MB Beats 65.50%
  * @author qiushile <qiushile@sina.com>
  * @date 2023/1/15
  */
 public class Solution2421 {
     public int numberOfGoodPaths(int[] vals, int[][] edges) {
         int n = vals.length;
-        int ans = n;
         Map<Integer, List<Integer>> map = new HashMap<>(n);
         for (int[] edge : edges) {
             map.computeIfAbsent(edge[0], v -> new ArrayList<>()).add(edge[1]);
             map.computeIfAbsent(edge[1], v -> new ArrayList<>()).add(edge[0]);
         }
-        Queue<Integer> leafNodes = new LinkedList<>();
         int[] parent = new int[n];
         parent[0] = -1;
-        // to calc parent
+        int[] ancestor = new int[n];
+        Arrays.fill(ancestor, -1);
+        ancestor[0] = 0;
         Queue<Integer> q = new LinkedList<>();
         q.add(0);
+        Map<Integer, Map<Integer, Integer>> all = new HashMap<>();
+        HashMap<Integer, Integer> map0 = new HashMap<>();
+        map0.put(0, 1);
+        all.put(vals[0], map0);
         while (!q.isEmpty()) {
             Integer curr = q.poll();
             if (!map.containsKey(curr)) {
                 continue;
             }
             List<Integer> children = map.get(curr);
-            if (curr != 0 && children.size() == 1) {
-                leafNodes.offer(curr);
-            }
-            Integer p = null;
             for (Integer child : children) {
-                if (child.equals(parent[curr])) {
-                    p = child;
-                } else {
+                if (!child.equals(parent[curr])) {
                     parent[child] = curr;
+                    if (vals[child] < vals[curr]) {
+                        ancestor[child] = child;
+                    } else {
+                        int anc = ancestor[curr];
+                        while (anc > 0 && vals[parent[anc]] <= vals[child]) {
+                            anc = parent[anc];
+                        }
+                        ancestor[child] = anc;
+                    }
+                    Map<Integer, Integer> childMap = all.computeIfAbsent(vals[child], c -> new HashMap<>());
+                    childMap.put(ancestor[child], childMap.getOrDefault(ancestor[child], 0) + 1);
                     q.offer(child);
                 }
             }
-            if (p != null) {
-                children.remove(p);
+        }
+        int ans = 0;
+        for (Map<Integer, Integer> nodeMap : all.values()) {
+            for (Integer v : nodeMap.values()) {
+                ans += v * (v + 1) / 2;
             }
         }
-
-        Map<Integer, List<Map<Integer, Integer>>> counts = new HashMap<>(n);
-        q = leafNodes;
-        while (!q.isEmpty()) {
-            Integer curr = q.poll();
-            int val = vals[curr];
-            Map<Integer, Integer> currMap = new HashMap<>();
-            List<Map<Integer, Integer>> mapList;
-            if (counts.containsKey(curr)) {
-                mapList = counts.get(curr);
-                for (int i = 0; i < mapList.size(); i++) {
-                    Map<Integer, Integer> map1 = mapList.get(i);
-                    for (int j = i + 1; j < mapList.size(); j++) {
-                        Map<Integer, Integer> map2 = mapList.get(j);
-                        for (Map.Entry<Integer, Integer> entry : map1.entrySet()) {
-                            Integer key = entry.getKey();
-                            if (key >= val && map2.containsKey(key)) {
-                                ans +=  entry.getValue() * map2.get(key);
-                            }
-                        }
-                    }
-                    if (map1.containsKey(val)) {
-                        ans += map1.get(val);
-                    }
-                    for (Map.Entry<Integer, Integer> entry : map1.entrySet()) {
-                        Integer key = entry.getKey();
-                        if (key >= val) {
-                            currMap.put(key, currMap.getOrDefault(key, 0) + entry.getValue());
-                        }
-                    }
-                }
-                counts.remove(curr);
-            }
-            currMap.put(val, currMap.getOrDefault(val, 0) + 1);
-
-            int p = parent[curr];
-            if (p >= 0) {
-                counts.computeIfAbsent(p, v -> new ArrayList<>()).add(currMap);
-                map.get(p).remove(curr);
-                if (map.get(p).isEmpty()) {
-                    q.offer(p);
-                    map.remove(p);
-                }
-            }
-        }
-
         return ans;
     }
 }

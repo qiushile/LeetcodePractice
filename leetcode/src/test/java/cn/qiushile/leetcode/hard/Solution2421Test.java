@@ -28,4 +28,9 @@ public class Solution2421Test {
     public void testNumberOfGoodPaths03() {
         assertEquals(1, solution2421UnderTest.numberOfGoodPaths(new int[]{1}, new int[][]{}));
     }
+
+    @Test
+    public void testNumberOfGoodPaths65() {
+        assertEquals(20, solution2421UnderTest.numberOfGoodPaths(new int[]{2,5,5,1,5,2,3,5,1,5}, new int[][]{{0,1},{2,1},{3,2},{3,4},{3,5},{5,6},{1,7},{8,4},{9,7}}));
+    }
 }

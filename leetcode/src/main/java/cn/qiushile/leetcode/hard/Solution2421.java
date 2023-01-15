@@ -117,6 +117,7 @@ public class Solution2421 {
                         }
                     }
                 }
+                counts.remove(curr);
             }
             currMap.put(val, currMap.getOrDefault(val, 0) + 1);
 
@@ -126,6 +127,7 @@ public class Solution2421 {
                 map.get(p).remove(curr);
                 if (map.get(p).isEmpty()) {
                     q.offer(p);
+                    map.remove(p);
                 }
             }
         }

@@ -32,7 +32,6 @@ public class Solution0004 {
         int n2 = nums2.length;
         int n = n1 + n2;
         boolean isOdd = n % 2 == 1;
-        int skip = n / 2 - (isOdd? 0: 1);
         if (n1 == 0 && n2 == 0) {
             return 0.0;
         } else if (n2 == 0) {
@@ -40,49 +39,66 @@ public class Solution0004 {
         } else if (n1 == 0) {
             return isOdd? nums2[n2 / 2] : 0.5 * (nums2[n2 / 2 - 1] + nums2[n2 / 2]);
         }
-        int p1 = -1;
-        int p2 = -1;
+
+        int skip = n / 2 - (isOdd? 0: 1);
+
+        int p1 = 0;
+        int p2 = 0;
+        // skip num of nums1
         int l1 = (n1 - 1) / 2;
+        // skip num of nums2
         int l2 = (n2 - 1) / 2;
-        if (nums1[l1] < nums2[l2]) {
+        if (nums1[l1] == nums2[l2]) {
+            p1 = l1;
+            p2 = l2;
+        } else if (nums1[l1] < nums2[l2]) {
             p1 = l1;
         } else {
             p2 = l2;
         }
-        int move = skip;
-        while (move > 1 && p1 + p2 + 2 < skip) {
-            move = (skip - p1 - p2 - 2);
-            l1 = p1 + move / 2;
-            l2 = p2 + move / 2;
-            if (l1 >= n1) {
-                l1 = n1 - 1;
-            }
-            if (l2 >= n2) {
-                l2 = n2 - 1;
-            }
-            if (nums1[l1] < nums2[l2]) {
-                p1 = l1;
-            } else {
-                p2 = l2;
-            }
-        }
-        while (p1 + p2 + 2 < skip) {
-            if (p1 == n1 - 1) {
+
+        while (p1 + p2 < skip) {
+            if (p1 == n1) {
                 p2++;
-            } else if (p2 == n2 - 1) {
+            } else if (p2 == n2) {
                 p1++;
-            } else if (nums1[p1 + 1] < nums2[p2 + 1]) {
+            } else if (nums1[p1] < nums2[p2]) {
                 p1++;
             } else {
                 p2++;
             }
         }
-        if (p1 == n1 - 1) {
-            return isOdd? nums2[p2 + 1] : 0.5 * (nums2[p2 + 1] + nums2[p2 + 2]);
+
+        if (isOdd) {
+            if (p1 == n1) {
+                return nums2[p2];
+            } else if (p2 == n2) {
+                return nums1[p1];
+            } else {
+                return Math.min(nums2[p2], nums1[p1]);
+            }
+        } else {
+            if (p1 == n1) {
+                return 0.5 * (nums2[p2] + nums2[p2 + 1]);
+            } else if (p2 == n2) {
+                return 0.5 * (nums1[p1] + nums1[p1 + 1]);
+            } else {
+                if (nums1[p1] == nums2[p2]) {
+                    return nums1[p1];
+                } else if (nums1[p1] < nums2[p2]){ // p1 p1+1 p2 p2+1
+                    if (p1 == n1 - 1) {
+                        return 0.5 * (nums1[p1] + nums2[p2]);
+                    } else {
+                        return 0.5 * (nums1[p1] + Math.min(nums2[p2], nums1[p1 + 1]));
+                    }
+                } else {
+                    if (p2 == n2 - 1) {
+                        return 0.5 * (nums2[p2] + nums1[p1]);
+                    } else {
+                        return 0.5 * (nums2[p2] + Math.min(nums1[p1], nums2[p2 + 1]));
+                    }
+                }
+            }
         }
-        if (p2 == n2 - 1) {
-            return isOdd? nums1[p1 + 1] : 0.5 * (nums1[p1 + 1] + nums1[p1 + 2]);
-        }
-        return isOdd? Math.min(nums1[p1 + 1], nums2[p2 + 1]): 0.5 * (nums1[p1 + 1] + nums2[p2 + 1]);
     }
 }

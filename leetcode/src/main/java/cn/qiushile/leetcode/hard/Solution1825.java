@@ -45,6 +45,7 @@ import java.util.TreeMap;
  * 1 <= k*2 < m
  * 1 <= num <= 105
  * At most 105 calls will be made to addElement and calculateMKAverage.
+ * Runtime 52 ms Beats 100% Memory 90.5 MB Beats 74.56%
  * @author qiushile <qiushile@sina.com>
  * @date 2023/1/18
  */
@@ -133,14 +134,14 @@ public class Solution1825 {
                     removeOne(middle, moveKey);
                     sum = sum - moveKey;
                     left.put(moveKey, left.getOrDefault(moveKey, 0) + 1);
-                    edgeFix(middle, right);
                 } else if (removeRight) {
                     Integer moveKey = middle.lastKey();
                     removeOne(middle, moveKey);
                     sum = sum - moveKey;
                     right.put(moveKey, right.getOrDefault(moveKey, 0) + 1);
-                    edgeFix(left, middle);
                 }
+                edgeFix(left, middle);
+                edgeFix(middle, right);
                 return;
             }
             // if not full

@@ -1,7 +1,8 @@
 package cn.qiushile.leetcode.hard;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.ArrayDeque;
+import java.util.Queue;
+import java.util.TreeMap;
 
 /**
  * 1825. Finding MK Average
@@ -54,90 +55,130 @@ public class Solution1825 {
         private int k;
         private int size = 0;
         private long sum = 0L;
-        // max heap
-        private List<Integer> left;
-        // max heap
-        private List<Integer> middle;
-        // min heap
-        private List<Integer> right;
+
+        private Queue<Integer> q = new ArrayDeque<>(m);
+        private TreeMap<Integer, Integer> left = new TreeMap<>();
+        private TreeMap<Integer, Integer> middle = new TreeMap<>();
+        private TreeMap<Integer, Integer> right = new TreeMap<>();
 
         public MKAverage(int m, int k) {
             this.m = m;
             this.k = k;
-            this.left = new ArrayList<>(k + 1);
-            this.middle = new ArrayList<>();
-            this.right = new ArrayList<>(k + 1);
-            this.left.add(0);
-            this.middle.add(0);
-            this.right.add(0);
         }
 
-        private int removeTop(List<Integer> heap, boolean isMinHeap) {
-            int top = heap.get(1);
-            heap.set(1, heap.get(heap.size() - 1));
-            heap.remove(heap.size() - 1);
-            if (heap.size() == 1) {
-                return top;
+        private void removeOne(TreeMap<Integer, Integer> map, int num) {
+            Integer rmCount = map.get(num);
+            if (rmCount.equals(1)) {
+                map.remove(num);
+            } else {
+                map.put(num, rmCount - 1);
             }
-            int index = 1;
-            int num = heap.get(1);
-            while (index < heap.size() / 2) {
-                int leftValue = heap.get(index * 2);
-                int rightValue = heap.size() <= (index + 1) * 2? heap.get(index * 2 + 1): -1;
-                boolean stop = isMinHeap? leftValue > num && (rightValue > num || rightValue == -1):
-                        leftValue < num && (rightValue < num || rightValue == -1);
-                if (stop) {
-                    break;
-                }
-                boolean moveLeft = rightValue == -1 || (isMinHeap? leftValue < rightValue: leftValue > rightValue);
-                if (moveLeft) {
-                    heap.set(index * 2, num);
-                    heap.set(index, leftValue);
-                    index = index * 2;
-                } else {
-                    heap.set(index * 2 + 1, num);
-                    heap.set(index, rightValue);
-                    index = index * 2 + 1;
-                }
-            }
-            return top;
         }
 
-        private void addValue(List<Integer> heap, boolean isMinHeap, int num) {
-            int index = heap.size();
-            heap.add(num);
-            while (index >= 1) {
-                Integer parent = heap.get(index / 2);
-                if (index > 1 && ((isMinHeap && num < parent) || (!isMinHeap && num > parent))) {
-                    heap.set(index / 2, num);
-                    heap.set(index, parent);
+        private void edgeFix(TreeMap<Integer, Integer> prev, TreeMap<Integer, Integer> next) {
+            if (next.firstKey() < prev.lastKey()) {
+                Integer nextKey = next.firstKey();
+                Integer nextCount = next.get(nextKey);
+                Integer prevKey = prev.lastKey();
+                Integer prevCount = prev.get(prevKey);
+                if (prevCount.equals(1)) {
+                    prev.remove(prevKey);
                 } else {
-                    break;
+                    prev.put(prevKey, prevCount - 1);
                 }
-                index = parent;
+                prev.put(nextKey, prev.getOrDefault(nextKey, 0) + 1);
+                if (nextCount.equals(1)) {
+                    next.remove(nextKey);
+                } else {
+                    next.put(nextKey, nextCount - 1);
+                }
+                next.put(prevKey, next.getOrDefault(prevKey, 0) + 1);
+                if (prev == middle) {
+                    sum = sum - prevKey + nextKey;
+                }
+                if (next == middle) {
+                    sum = sum - nextKey + prevKey;
+                }
             }
         }
 
         public void addElement(int num) {
+            q.offer(num);
+            // all full
+            if (size == m) {
+                Integer rm = q.poll();
+                // remove and add the same value, no need to change
+                if (rm.equals(num)) {
+                    return;
+                }
+                // the position of the value removed
+                boolean removeLeft = false;
+                boolean removeRight = false;
+                if (rm >= middle.firstKey() && rm <= middle.lastKey()) {
+                    removeOne(middle, rm);
+                    sum = sum - rm;
+                } else if (rm <= left.lastKey()) {
+                    removeLeft = true;
+                    removeOne(left, rm);
+                } else if (rm >= right.firstKey()) {
+                    removeRight = true;
+                    removeOne(right, rm);
+                }
+                // insert new value into middle first
+                middle.put(num, middle.getOrDefault(num, 0) + 1);
+                sum = sum + num;
+                // update values
+                if (removeLeft) {
+                    Integer moveKey = middle.firstKey();
+                    removeOne(middle, moveKey);
+                    sum = sum - moveKey;
+                    left.put(moveKey, left.getOrDefault(moveKey, 0) + 1);
+                    edgeFix(middle, right);
+                } else if (removeRight) {
+                    Integer moveKey = middle.lastKey();
+                    removeOne(middle, moveKey);
+                    sum = sum - moveKey;
+                    right.put(moveKey, right.getOrDefault(moveKey, 0) + 1);
+                    edgeFix(left, middle);
+                }
+                return;
+            }
+            // if not full
+            // left not full
             if (size < k) {
-                addValue(left, false, num);
+                left.put(num, left.getOrDefault(num, 0) + 1);
             } else {
-                Integer maxLeft = left.get(1);
+                // left is full
+                Integer maxLeft = left.lastKey();
+                // num is in left
                 if (num < maxLeft) {
-                    removeTop(left, false);
-                    addValue(left, false, num);
+                    left.put(num, left.getOrDefault(num, 0) + 1);
+                    Integer maxLeftCount = left.get(maxLeft);
+                    if (maxLeftCount.equals(1)) {
+                        left.remove(maxLeft);
+                    } else {
+                        left.put(maxLeft, maxLeftCount - 1);
+                    }
                     num = maxLeft;
                 }
+                // right not full
                 if (size < k + k) {
-                    addValue(right, true, num);
+                    right.put(num, right.getOrDefault(num, 0) + 1);
                 } else {
-                    Integer rightMin = right.get(1);
-                    if (num > rightMin) {
-                        removeTop(right, true);
-                        addValue(right, true, num);
-                        num = rightMin;
+                    // num is in right
+                    Integer minRight = right.firstKey();
+                    if (num > minRight) {
+                        right.put(num, right.getOrDefault(num, 0) + 1);
+                        Integer minRightCount = right.get(minRight);
+                        if (minRightCount.equals(1)) {
+                            right.remove(minRight);
+                        } else {
+                            right.put(minRight, minRightCount - 1);
+                        }
+                        num = minRight;
                     }
-                    addValue(middle, false, num);
+                    // middle is not full
+                    middle.put(num, middle.getOrDefault(num, 0) + 1);
                     sum += num;
                 }
             }

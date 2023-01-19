@@ -20,27 +20,20 @@ package cn.qiushile.leetcode.medium;
  * 1 <= nums.length <= 3 * 104
  * -104 <= nums[i] <= 104
  * 2 <= k <= 104
+ * Runtime 4 ms Beats 92.83% Memory 45.8 MB Beats 94.64%
  * @author qiushile <qiushile@sina.com>
  * @date 2023/1/19
  */
 public class Solution0974 {
     public int subarraysDivByK(int[] nums, int k) {
-        int n = nums.length;
-        int[] sums = new int[n];
-        sums[0] = nums[0] % k;
-        int ans = sums[0] == 0? 1: 0;
-        for (int i = 1; i < n; i++) {
-            sums[i] = (sums[i - 1] + nums[i]) % k;
-            if (sums[i] == 0) {
-                ans++;
-            }
-        }
-        for (int i = 0; i < n; i++) {
-            for (int j = i + 1; j < n; j++) {
-                if ((sums[j] - sums[i]) % k == 0) {
-                    ans++;
-                }
-            }
+        int[] mods = new int[k];
+        mods[0] = 1;
+        int md = 0;
+        int ans = 0;
+        for (int i = 0; i < nums.length; i++) {
+            md = (md + nums[i] % k + k) % k;
+            ans += mods[md];
+            mods[md]++;
         }
         return ans;
     }

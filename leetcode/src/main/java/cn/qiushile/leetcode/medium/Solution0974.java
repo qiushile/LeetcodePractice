@@ -27,11 +27,11 @@ public class Solution0974 {
     public int subarraysDivByK(int[] nums, int k) {
         int n = nums.length;
         int[] sums = new int[n];
-        sums[0] = nums[0];
-        int ans = sums[0] % k == 0? 1: 0;
+        sums[0] = nums[0] % k;
+        int ans = sums[0] == 0? 1: 0;
         for (int i = 1; i < n; i++) {
-            sums[i] = sums[i - 1] + nums[i];
-            if (sums[i] % k == 0) {
+            sums[i] = (sums[i - 1] + nums[i]) % k;
+            if (sums[i] == 0) {
                 ans++;
             }
         }

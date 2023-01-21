@@ -1,9 +1,9 @@
 package cn.qiushile.leetcode.medium;
 
 import java.util.ArrayList;
-import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
-import java.util.stream.Stream;
+import java.util.Set;
 
 /**
  * 491. Non-decreasing Subsequences
@@ -27,56 +27,36 @@ import java.util.stream.Stream;
  * 173.7K
  * Acceptance Rate
  * 53.4%
+ * Runtime 25 ms Beats 29.10% Memory 50 MB Beats 56.91%
  * @author qiushile <qiushile@sina.com>
  * @date 2023/1/20
  */
 public class Solution0491 {
     public List<List<Integer>> findSubsequences(int[] nums) {
-        List<List<Integer>> ans = new ArrayList<>();
+        Set<List<Integer>> ans = new HashSet<>();
         if (nums.length <= 1) {
-            return ans;
+            return ans.stream().toList();
         }
-        List<Integer> curr = new ArrayList<>();
-        curr.add(nums[0]);
+        List<Integer> currList = new ArrayList<>();
+        currList.add(nums[0]);
+        ans.add(currList);
+        List<List<Integer>> tmp = new ArrayList<>();
         for (int i = 1; i < nums.length; i++) {
-            if (nums[i] >= nums[i - 1]) {
-                curr.add(nums[i]);
-            } else {
-                ans.addAll(computeAll(curr));
-                curr = new ArrayList<>();
-                curr.add(nums[i]);
-            }
-        }
-        ans.addAll(computeAll(curr));
-        return ans;
-    }
-
-    private List<List<Integer>> computeAll(List<Integer> list) {
-        int n = list.size();
-        if (n <= 1) {
-            return Collections.emptyList();
-        }
-        List<List<Integer>> ans = new ArrayList<>();
-        ans.add(new ArrayList<>());
-        int start = 0;
-        int index = 0;
-        while (index <= n) {
-            if (index == n || !list.get(index).equals(list.get(start))) {
-                int times = index - start;
-                List<Integer> suffix = new ArrayList<>(times);
-                List<List<Integer>> tmp = new ArrayList<>();
-                while (times > 0) {
-                    suffix.add(list.get(start));
-                    tmp.addAll(ans.stream().map(l -> Stream.concat(l.stream(), suffix.stream()).toList()).toList());
-                    times--;
+            int num = nums[i];
+            for (List<Integer> list: ans) {
+                if (num >= list.get(list.size() - 1)) {
+                    currList = new ArrayList<>(list);
+                    currList.add(num);
+                    tmp.add(currList);
                 }
+            }
+            currList = new ArrayList<>();
+            currList.add(num);
+            ans.add(currList);
+            if (!tmp.isEmpty()) {
                 ans.addAll(tmp);
-                if (index == n) {
-                    break;
-                }
-                start = index;
+                tmp = new ArrayList<>();
             }
-            index++;
         }
         return ans.stream().filter(l -> l.size() > 1).toList();
     }

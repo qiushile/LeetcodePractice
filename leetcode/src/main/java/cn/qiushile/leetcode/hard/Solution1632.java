@@ -1,5 +1,8 @@
 package cn.qiushile.leetcode.hard;
 
+import java.util.HashMap;
+import java.util.Map;
+
 /**
  * 1632. Rank Transform of a Matrix
  * Hard
@@ -64,20 +67,45 @@ public class Solution1632 {
             rank = Math.max(rank, rows[row]);
             rank = Math.max(rank, cols[col]);
             if (i == order.length - 1 || value != ms[i + 1]) {
-                rank++;
                 if (last > -1) {
+                    Map<Integer, Integer> rowRank = new HashMap<>();
+                    Map<Integer, Integer> colRank = new HashMap<>();
                     for (int j = last; j <= i; j++) {
                         index = order[j];
                         row = index / n;
                         col = index % n;
-                        ans[row][col] = rank;
-                        rows[row] = rank;
-                        cols[col] = rank;
+                        int currRank = Math.max(rows[row], cols[col]) + 1;
+                        ans[row][col] = currRank;
+                        rowRank.put(row, Math.max(currRank, rowRank.getOrDefault(row, 0)));
+                        colRank.put(col, Math.max(currRank, colRank.getOrDefault(col, 0)));
+                    }
+                    boolean changed = false;
+                    do {
+                        changed = false;
+                        for (int j = last; j <= i; j++) {
+                            index = order[j];
+                            row = index / n;
+                            col = index % n;
+                            if (!rowRank.get(row).equals(colRank.get(col))) {
+                                changed = true;
+                                rowRank.put(row, Math.max(rowRank.get(row), colRank.get(col)));
+                                colRank.put(col, Math.max(rowRank.get(row), colRank.get(col)));
+                            }
+                        }
+                    } while (changed);
+                    for (int j = last; j <= i; j++) {
+                        index = order[j];
+                        row = index / n;
+                        col = index % n;
+                        Integer currRank = rowRank.get(row);
+                        ans[row][col] = currRank;
+                        rows[row] = currRank;
+                        cols[col] = currRank;
                     }
                 } else {
-                    ans[row][col] = rank;
-                    rows[row] = rank;
-                    cols[col] = rank;
+                    ans[row][col] = rank + 1;
+                    rows[row] = rank + 1;
+                    cols[col] = rank + 1;
                 }
                 last = -1;
                 rank = 0;

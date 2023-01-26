@@ -78,4 +78,17 @@ public class Solution1632Test {
         // Verify the results
         assertArrayEquals(expectedResult, result);
     }
+
+    @Test
+    public void testMatrixRankTransform24() {
+        // Setup
+        final int[][] matrix = new int[][]{{-37,-26,-47,-40,-13},{22,-11,-44,47,-6},{-35,8,-45,34,-31},{-16,23,-6,-43,-20},{47,38,-27,-8,43}};
+        final int[][] expectedResult = new int[][]{{3,4,1,2,7},{9,5,3,10,8},{4,6,2,7,5},{7,9,8,1,6},{12,10,4,5,11}};
+
+        // Run the test
+        final int[][] result = solution1632UnderTest.matrixRankTransform(matrix);
+
+        // Verify the results
+        assertArrayEquals(expectedResult, result);
+    }
 }

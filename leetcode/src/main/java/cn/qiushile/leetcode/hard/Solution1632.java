@@ -1,7 +1,9 @@
 package cn.qiushile.leetcode.hard;
 
-import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
+import java.util.TreeMap;
 
 /**
  * 1632. Rank Transform of a Matrix
@@ -43,6 +45,9 @@ import java.util.Map;
 public class Solution1632 {
     public int[][] matrixRankTransform(int[][] matrix) {
         int m = matrix.length;
+        if (m == 0) {
+            return matrix;
+        }
         int n = matrix[0].length;
         int[] ms = new int[m * n];
         int[] order = new int[m * n];
@@ -59,6 +64,10 @@ public class Solution1632 {
         int[] cols = new int[n];
         int last = -1;
         int rank = 0;
+        TreeMap<Integer, Set<Integer>> numsMap = new TreeMap<>();
+        TreeMap<Integer, Set<Integer>> rowsMap = new TreeMap<>();
+        TreeMap<Integer, Set<Integer>> colsMap = new TreeMap<>();
+        TreeMap<Integer, Integer> rankMap = new TreeMap<>();
         for (int i = 0; i < order.length; i++) {
             int index = order[i];
             int value = ms[i];
@@ -68,40 +77,66 @@ public class Solution1632 {
             rank = Math.max(rank, cols[col]);
             if (i == order.length - 1 || value != ms[i + 1]) {
                 if (last > -1) {
-                    Map<Integer, Integer> rowRank = new HashMap<>();
-                    Map<Integer, Integer> colRank = new HashMap<>();
                     for (int j = last; j <= i; j++) {
                         index = order[j];
                         row = index / n;
                         col = index % n;
-                        int currRank = Math.max(rows[row], cols[col]) + 1;
-                        ans[row][col] = currRank;
-                        rowRank.put(row, Math.max(currRank, rowRank.getOrDefault(row, 0)));
-                        colRank.put(col, Math.max(currRank, colRank.getOrDefault(col, 0)));
-                    }
-                    boolean changed = false;
-                    do {
-                        changed = false;
-                        for (int j = last; j <= i; j++) {
-                            index = order[j];
-                            row = index / n;
-                            col = index % n;
-                            if (!rowRank.get(row).equals(colRank.get(col))) {
-                                changed = true;
-                                rowRank.put(row, Math.max(rowRank.get(row), colRank.get(col)));
-                                colRank.put(col, Math.max(rowRank.get(row), colRank.get(col)));
+                        int first = -1;
+                        int second = -1;
+                        for (Map.Entry<Integer, Set<Integer>> entry : rowsMap.entrySet()) {
+                            Integer mark = entry.getKey();
+                            Set<Integer> rowSet = entry.getValue();
+                            Set<Integer> colSet = colsMap.get(mark);
+                            Set<Integer> numSet = numsMap.get(mark);
+                            Integer markRank = rankMap.get(mark);
+                            if (rowSet.contains(row) || colSet.contains(col)) {
+                                if (first == -1) {
+                                    first = mark;
+                                    numSet.add(index);
+                                    rowSet.add(row);
+                                    colSet.add(col);
+                                    rankMap.put(mark, Math.max(markRank, Math.max(rows[row] + 1, cols[col] + 1)));
+                                } else {
+                                    second = mark;
+                                    break;
+                                }
                             }
                         }
-                    } while (changed);
-                    for (int j = last; j <= i; j++) {
-                        index = order[j];
-                        row = index / n;
-                        col = index % n;
-                        Integer currRank = rowRank.get(row);
-                        ans[row][col] = currRank;
-                        rows[row] = currRank;
-                        cols[col] = currRank;
+                        if (first == -1) {
+                            numsMap.put(index, new HashSet<>());
+                            rowsMap.put(index, new HashSet<>());
+                            colsMap.put(index, new HashSet<>());
+                            numsMap.get(index).add(index);
+                            rowsMap.get(index).add(row);
+                            colsMap.get(index).add(col);
+                            rankMap.put(index, Math.max(rows[row] + 1, cols[col] + 1));
+                        } else if (second != -1) {
+                            numsMap.get(first).addAll(numsMap.get(second));
+                            rowsMap.get(first).addAll(rowsMap.get(second));
+                            colsMap.get(first).addAll(colsMap.get(second));
+                            rankMap.put(first, Math.max(rankMap.get(first), rankMap.get(second)));
+                            numsMap.remove(second);
+                            rowsMap.remove(second);
+                            colsMap.remove(second);
+                            rankMap.remove(second);
+                        }
                     }
+                    for (Map.Entry<Integer, Integer> entry : rankMap.entrySet()) {
+                        Integer mark = entry.getKey();
+                        Integer markRank = entry.getValue();
+                        Set<Integer> numSet = numsMap.get(mark);
+                        for (Integer num : numSet) {
+                            row = num / n;
+                            col = num % n;
+                            ans[row][col] = markRank;
+                            rows[row] = markRank;
+                            cols[col] = markRank;
+                        }
+                    }
+                    rowsMap = new TreeMap<>();
+                    colsMap = new TreeMap<>();
+                    rankMap = new TreeMap<>();
+                    numsMap = new TreeMap<>();
                 } else {
                     ans[row][col] = rank + 1;
                     rows[row] = rank + 1;

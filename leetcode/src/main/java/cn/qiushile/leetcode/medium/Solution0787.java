@@ -1,9 +1,7 @@
 package cn.qiushile.leetcode.medium;
 
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.Map;
-import java.util.Queue;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * 787. Cheapest Flights Within K Stops
@@ -46,41 +44,38 @@ import java.util.Queue;
  * @date 2023/1/26
  */
 public class Solution0787 {
+    private int minAns = Integer.MAX_VALUE;
     public int findCheapestPrice(int n, int[][] flights, int src, int dst, int k) {
         int[][] costs = new int[n][n];
         for (int[] flight: flights) {
             costs[flight[0]][flight[1]] = flight[2];
         }
+
+        Set<Integer> visited = new HashSet<>();
+        visited.add(src);
+        int ans = dfs(costs, visited, src, dst, k, 0);
+        return ans == Integer.MAX_VALUE? -1: ans;
+    }
+
+    private int dfs(int[][] costs, Set<Integer> visited, int src, int dst, int k, int price) {
         int ans = Integer.MAX_VALUE;
-        Map<Integer, Integer> visited = new HashMap<>(n);
-        visited.put(src, 0);
-        Queue<Integer> curr = new LinkedList<>();
-        Queue<Integer> next = new LinkedList<>();
-        curr.offer(src);
-        while (k >= 0 && !curr.isEmpty()) {
-            Integer city = curr.poll();
-            Integer cost = visited.get(city);
-            for (int i = 0; i <= n; i++) {
-                if (costs[city][i] > 0) {
-                    Integer currCost = cost + costs[city][i];
-                    if (currCost >= ans) {
-                        continue;
+        if (k < 0 || price >= minAns) {
+            return ans;
+        }
+        for (int i = 0; i < costs[src].length; i++) {
+            if (!visited.contains(i) && costs[src][i] > 0) {
+                if (i == dst) {
+                    ans = Math.min(ans, price + costs[src][i]);
+                    if (ans < minAns) {
+                        minAns = ans;
                     }
-                    if (!visited.containsKey(i) || currCost < visited.get(i)) {
-                        visited.put(i, currCost);
-                        next.offer(i);
-                        if (i == dst) {
-                            ans = currCost;
-                        }
-                    }
+                } else {
+                    visited.add(i);
+                    ans = Math.min(ans, dfs(costs, visited, i, dst, k - 1, price + costs[src][i]));
+                    visited.remove(i);
                 }
             }
-            if (curr.isEmpty()) {
-                k--;
-                curr = next;
-                next = new LinkedList<>();
-            }
         }
-        return visited.containsKey(dst)? ans: -1;
+        return ans;
     }
 }

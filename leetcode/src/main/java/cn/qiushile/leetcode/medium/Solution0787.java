@@ -1,6 +1,8 @@
 package cn.qiushile.leetcode.medium;
 
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -40,42 +42,36 @@ import java.util.Set;
  * There will not be any multiple flights between two cities.
  * 0 <= src, dst, k < n
  * src != dst
+ * Runtime 54 ms Beats 5.6% Memory 48.4 MB Beats 6.99%
  * @author qiushile <qiushile@sina.com>
  * @date 2023/1/26
  */
 public class Solution0787 {
-    private int minAns = Integer.MAX_VALUE;
     public int findCheapestPrice(int n, int[][] flights, int src, int dst, int k) {
-        int[][] costs = new int[n][n];
+        Map<Integer, Set<int[]>> prices = new HashMap<>(n);
         for (int[] flight: flights) {
-            costs[flight[0]][flight[1]] = flight[2];
+            prices.computeIfAbsent(flight[0], x -> new HashSet<>()).add(new int[]{flight[1], flight[2]});
         }
-
-        Set<Integer> visited = new HashSet<>();
-        visited.add(src);
-        int ans = dfs(costs, visited, src, dst, k, 0);
-        return ans == Integer.MAX_VALUE? -1: ans;
-    }
-
-    private int dfs(int[][] costs, Set<Integer> visited, int src, int dst, int k, int price) {
-        int ans = Integer.MAX_VALUE;
-        if (k < 0 || price >= minAns) {
-            return ans;
-        }
-        for (int i = 0; i < costs[src].length; i++) {
-            if (!visited.contains(i) && costs[src][i] > 0) {
-                if (i == dst) {
-                    ans = Math.min(ans, price + costs[src][i]);
-                    if (ans < minAns) {
-                        minAns = ans;
+        Map<Integer, Integer> curr = new HashMap<>(n);
+        Map<Integer, Integer> next = new HashMap<>(n);
+        Set<Integer> changed = new HashSet<>();
+        curr.put(src, 0);
+        next.put(src, 0);
+        for (int i = 0; i <= k; i++) {
+            for (int[] flight : flights) {
+                if (curr.containsKey(flight[0])) {
+                    int newPrice = curr.get(flight[0]) + flight[2];
+                    if (!next.containsKey(flight[1]) || newPrice < next.get(flight[1])) {
+                        next.put(flight[1], newPrice);
+                        changed.add(flight[1]);
                     }
-                } else {
-                    visited.add(i);
-                    ans = Math.min(ans, dfs(costs, visited, i, dst, k - 1, price + costs[src][i]));
-                    visited.remove(i);
                 }
             }
+            for (Integer city : changed) {
+                curr.put(city, next.get(city));
+            }
+            changed.clear();
         }
-        return ans;
+        return curr.getOrDefault(dst, -1);
     }
 }

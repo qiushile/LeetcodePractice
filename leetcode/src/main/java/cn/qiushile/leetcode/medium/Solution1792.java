@@ -1,11 +1,6 @@
 package cn.qiushile.leetcode.medium;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
 import java.util.PriorityQueue;
-import java.util.Queue;
-import java.util.Set;
 
 /**
  * 1792. Maximum Average Pass Ratio
@@ -29,63 +24,31 @@ import java.util.Set;
  * classes[i].length == 2
  * 1 <= passi <= totali <= 105
  * 1 <= extraStudents <= 105
+ * Runtime 522 ms Beats 86.90% Memory 100.7 MB Beats 47.62%
  * @author qiushile <qiushile@sina.com>
  * @date 2023/2/19
  */
 public class Solution1792 {
     public double maxAverageRatio(int[][] classes, int extraStudents) {
-        Map<Integer, Set<Integer>> map = new HashMap<>();
-        for (int i = 0; i < classes.length; i++) {
-            map.computeIfAbsent(classes[i][1], x -> new HashSet<>()).add(i);
-        }
-        Queue<Integer> q = new PriorityQueue<>();
-        for (Integer stu : map.keySet()) {
-            q.offer(stu);
-        }
-        while (extraStudents > 0) {
-            Integer min = q.poll();
-            if (q.isEmpty()) {
-                Set<Integer> cls = map.get(min);
-                int count = extraStudents / cls.size();
-                extraStudents -= count * cls.size();
-                for (Integer c : cls) {
-                    int cnt = count + extraStudents > 0? 1: 0;
-                    if (extraStudents > 0) {
-                        extraStudents--;
-                    }
-                    classes[c][0] += cnt;
-                    classes[c][1] += cnt;
-                }
-                break;
-            } else {
-                Integer sec = q.poll();
-                Set<Integer> cls = map.get(min);
-                if ((sec - min) * cls.size() > extraStudents) {
-                    int count = extraStudents / cls.size();
-                    extraStudents -= count * cls.size();
-                    map.get(sec).addAll(cls);
-                    for (Integer c : cls) {
-                        classes[c][0] += count;
-                        classes[c][1] += count;
-                    }
-                } else {
-                    int count = extraStudents / cls.size();
-                    extraStudents -= count * cls.size();
-                    for (Integer c : cls) {
-                        int cnt = count + extraStudents > 0? 1: 0;
-                        if (extraStudents > 0) {
-                            extraStudents--;
-                        }
-                        classes[c][0] += cnt;
-                        classes[c][1] += cnt;
-                    }
-                    break;
-                }
+        PriorityQueue<int[]> q = new PriorityQueue<>((a, b) -> {
+            long v1 = (long) (a[1] + 1) * a[1] * (b[1] - b[0]);
+            long v2 = (long) (b[1] + 1) * b[1] * (a[1] - a[0]);
+            if (v1 == v2) {
+                return 0;
             }
+            return v1 > v2? 1: -1;
+        });
+        for (int[] c : classes) {
+            q.offer(c);
+        }
+        for (int i = 0; i < extraStudents; i++) {
+            int[] c = q.poll();
+            q.offer(new int[]{c[0] + 1, c[1] + 1});
         }
         double rate = 0.0;
-        for (int i = 0; i < classes.length; i++) {
-            rate += 1.0 * classes[i][0] / classes[i][1];
+        while (!q.isEmpty()) {
+            int[] c = q.poll();
+            rate += 1.0 * c[0] / c[1];
         }
         rate /= classes.length;
         return rate;

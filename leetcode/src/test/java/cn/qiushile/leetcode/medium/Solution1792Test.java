@@ -23,7 +23,7 @@ public class Solution1792Test {
         final double result = solution1792UnderTest.maxAverageRatio(classes, 2);
 
         // Verify the results
-        assertEquals(0.7833, result, 0.00001);
+        assertEquals(0.78333, result, 0.00001);
     }
 
     @Test

@@ -51,4 +51,16 @@ public class Solution0079Test {
         // Verify the results
         assertFalse(result);
     }
+
+    @Test
+    public void testExist65() {
+        // Setup
+        final char[][] board = new char[][]{{'C','A','A'},{'A','A','A'},{'B','C','D'}};
+
+        // Run the test
+        final boolean result = solution0079UnderTest.exist(board, "AAB");
+
+        // Verify the results
+        assertTrue(result);
+    }
 }

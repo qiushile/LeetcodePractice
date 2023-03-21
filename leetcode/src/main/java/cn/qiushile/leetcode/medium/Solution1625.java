@@ -1,7 +1,11 @@
 package cn.qiushile.leetcode.medium;
 
 import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.PriorityQueue;
+import java.util.Queue;
 import java.util.Set;
+import java.util.TreeSet;
 
 /**
  * 1625. Lexicographically Smallest String After Applying Operations
@@ -48,6 +52,7 @@ import java.util.Set;
  * s consists of digits from 0 to 9 only.
  * 1 <= a <= 9
  * 1 <= b <= s.length - 1
+ * Runtime 548 ms Beats 10.13% Memory 50.2 MB Beats 56.96%
  * @author qiushile <qiushile@sina.com>
  * @date 2023/3/21
  */
@@ -55,64 +60,35 @@ public class Solution1625 {
     public String findLexSmallestString(String s, int a, int b) {
         int n = s.length();
         b %= n;
-        int[] map = new int[10];
-        for (int i = 1; i < 10; i++) {
-            int min = i;
-            int t = (i + a) % 10;
-            while (t != i && min != 0) {
-                min = Math.min(min, t);
-                t = (t + a) % 10;
+        a %= 10;
+        TreeSet<String> exist = new TreeSet<>();
+        Queue<String> q = new LinkedList<>();
+        q.offer(s);
+        exist.add(s);
+        while (!q.isEmpty()) {
+            String curr = q.poll();
+            char[] ch = curr.toCharArray();
+            String tmp = curr.substring(b) + curr.substring(0, b);
+            if (!exist.contains(tmp)) {
+                q.offer(tmp);
+                exist.add(tmp);
             }
-            map[i] = min;
-        }
-        boolean onlyOdd = (n % 2 == 0) && (b % 2 == 0);
-        int[] ans = new int[n];
-        for (int i = 0; i < n; i++) {
-            int curr = s.charAt(i) - '0';
-            if (!onlyOdd || (i % 2 == 1)) {
-                curr = map[curr];
-            }
-            ans[i] = curr;
-        }
-        int min = s.charAt(0) - '0';
-        if (!onlyOdd) {
-            min = map[min];
-        }
-        Set<Integer> starts = new HashSet<>();
-        starts.add(0);
-        for (int i = b; i != 0; i = (i + b) % n) {
-            if (ans[i] < min) {
-                min = ans[i];
-                starts.clear();
-                starts.add(i);
-            } else if (ans[i] == min) {
-                starts.add(i);
-            }
-        }
-        Set<Integer> next = new HashSet<>();
-        for (int i = 1; i < n; i++) {
-            min = 10;
-            for (Integer start : starts) {
-                int curr = ans[(start + i) % n];
-                if (curr == min) {
-                    next.add(start);
-                } else if (curr < min) {
-                    next.clear();
-                    min = curr;
-                    next.add(start);
+            for (int i = 1; i < 10; i++) {
+                for (int j = 1; j < ch.length; j += 2) {
+                    ch[j] = (char) ((ch[j] + a - '0') % 10 + '0');
+                }
+                tmp = new String(ch);
+                if (!exist.contains(tmp)) {
+                    q.offer(tmp);
+                    exist.add(tmp);
+                    tmp = tmp.substring(b) + tmp.substring(0, b);
+                    if (!exist.contains(tmp)) {
+                        q.offer(tmp);
+                        exist.add(tmp);
+                    }
                 }
             }
-            starts = next;
-            next = new HashSet<>();
-            if (starts.size() == 1) {
-                break;
-            }
         }
-        int realStart = starts.iterator().next();
-        StringBuilder sb = new StringBuilder();
-        for (int i = realStart; i < realStart + n; i++) {
-            sb.append(ans[i % n]);
-        }
-        return sb.toString();
+        return exist.first();
     }
 }

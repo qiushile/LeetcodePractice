@@ -21,45 +21,51 @@ package cn.qiushile.leetcode.hard;
  * Constraints:
  * 1 <= str1.length, str2.length <= 1000
  * str1 and str2 consist of lowercase English letters.
- * WA
+ * Runtime 14 ms Beats 86.66% Memory 46 MB Beats 68.8%
  * @author qiushile <qiushile@sina.com>
  * @date 2023/3/28
  */
 public class Solution1092 {
     public String shortestCommonSupersequence(String str1, String str2) {
-        String s1 = str1.length() >= str2.length()? str1: str2;
-        String s2 = str1.length() >= str2.length()? str2: str1;
-        if (s1.startsWith(s2) || s1.endsWith(s2)) {
-            return s1;
+        int n = str1.length();
+        int m = str2.length();
+        int[][] dp = new int[n + 1][m + 1];
+        for (int i = n - 1; i >= 0; i--) {
+            dp[i][m] = n - i;
         }
-        int n1 = s1.length();
-        int n2 = s2.length();
-        boolean flag;
-        for (int i = 1; i < n2 - 1; i++) {
-            flag = true;
-            int ni = n2 - i;
-            for (int i1 = 0, i2 = i; i2 <= (ni + 1) / 2; i1++, i2++) {
-                if (s1.charAt(i1) != s2.charAt(i2) ||
-                        s1.charAt(ni - i1 - 1) != s2.charAt(n2 - i2)) {
-                    flag = false;
-                    break;
+        for (int i = m - 1; i >= 0; i--) {
+            dp[n][i] = m - i;
+        }
+        for (int i = n - 1; i >= 0; i--) {
+            for (int j = m - 1; j >= 0; j--) {
+                if (str1.charAt(i) == str2.charAt(j)) {
+                    dp[i][j] = dp[i + 1][j + 1] + 1;
+                } else {
+                    dp[i][j] = Math.min(dp[i + 1][j], dp[i][j + 1]) + 1;
                 }
             }
-            if (flag) {
-                return s2.substring(0, i) + s1;
-            }
-            flag = true;
-            for (int i1 = n2 - n1 + i, i2 = 0; i2 <= (ni + 1) / 2; i1++, i2++) {
-                if (s1.charAt(i1) != s2.charAt(i2) ||
-                        s1.charAt(ni - i2 - 1) != s2.charAt(n2 - i2 - i)) {
-                    flag = false;
-                    break;
-                }
-            }
-            if (flag) {
-                return s1 + s2.substring(i);
+        }
+        StringBuilder sb = new StringBuilder();
+        int i = 0;
+        int j = 0;
+        while (i < n && j < m) {
+            if (str1.charAt(i) == str2.charAt(j)) {
+                sb.append(str1.charAt(i));
+                i++;
+                j++;
+            } else if (dp[i][j] == dp[i + 1][j] + 1) {
+                sb.append(str1.charAt(i));
+                i++;
+            } else {
+                sb.append(str2.charAt(j));
+                j++;
             }
         }
-        return s1 + s2;
+        if (i < n) {
+            sb.append(str1.substring(i));
+        } else if (j < m) {
+            sb.append(str2.substring(j));
+        }
+        return sb.toString();
     }
 }

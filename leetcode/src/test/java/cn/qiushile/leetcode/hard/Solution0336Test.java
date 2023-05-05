@@ -42,4 +42,11 @@ public class Solution0336Test {
         assertEquals(List.of(List.of(3,0),List.of(1,3),List.of(4,0),List.of(2,4),List.of(5,0),List.of(0,5)).stream().collect(Collectors.toSet()),
                 solution.palindromePairs(words).stream().collect(Collectors.toSet()));
     }
+
+    @Test
+    public void palindromePairs116() {
+        String[] words = new String[]{"aaaaabaababbaabababbbababbabbabbabaaabababbbbbbbaaaaabbbbabbababababbaaababbbbabbbbbaaaabaababbbaba","babbbaaaaabaababaabbbaaaaaabaa","baaaaabbbaabaaaaaaabaaabbbaabbabbaaabbbbababaaaaabbabbaabaaabbbbaabbbaababbbbabaaaabababbbaaabbbba","aabbaabaabaabbba","babbaaaabbababababbababaabbbbabbaabababb","bbbbabbaabbaaaabaaabbbbbbaaaaaaaaa","bbbbbaababababbaaaabb","aabbabaabbbbbbbbbaaab","abbabbaabaabaaa","bbbbabbbbaaaaaaabbbabaababbbbaaaaabaaabaaabababbaaababaaababbaabaaaaabaabbababaabaaaaaaaabb"};
+        assertEquals(List.of().stream().collect(Collectors.toSet()),
+                solution.palindromePairs(words).stream().collect(Collectors.toSet()));
+    }
 }

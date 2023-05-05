@@ -1,7 +1,11 @@
 package cn.qiushile.leetcode.hard;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.TreeSet;
 
 /**
  * 336. Palindrome Pairs
@@ -32,37 +36,11 @@ import java.util.List;
  * 1 <= words.length <= 5000
  * 0 <= words[i].length <= 300
  * words[i] consists of lowercase English letters.
- * Failed at Memory Limit Exceeded - 135 / 136 test cases passed.
+ * Runtime 298 ms Beats 78.97% Memory 51.4 MB Beats 86.21%
  * @author qiushile <qiushile@sina.com>
  * @date 2023/5/4
  */
 public class Solution0336 {
-
-    class Trie {
-        Trie[] next = new Trie[26];
-        List<Integer> ends = new ArrayList<>();
-        List<Integer> mids = new ArrayList<>();
-    }
-
-    private void insert(Trie t, String w, int p) {
-        for (int i = 0; i < w.length(); i++) {
-            if (isPalindrome(w.substring(i))) {
-                t.mids.add(p);
-            }
-            int c = w.charAt(i) - 'a';
-            if (t.next[c] == null) {
-                t.next[c] = new Trie();
-            }
-            t = t.next[c];
-        }
-        t.ends.add(p);
-    }
-
-    private String reverse(String w) {
-        StringBuilder sb = new StringBuilder(w);
-        sb.reverse();
-        return sb.toString();
-    }
 
     public List<List<Integer>> palindromePairs(String[] words) {
         List<List<Integer>> ans = new ArrayList<>();
@@ -70,53 +48,45 @@ public class Solution0336 {
         if (n < 2) {
             return ans;
         }
-        Trie root= new Trie();
+
+        Map<String, Integer> map = new HashMap<>();
+        Set<Integer> lens = new TreeSet<>();
+
         for (int i = 0; i < n; i++) {
-            insert(root, words[i], i);
+            map.put(words[i], i);
+            lens.add(words[i].length());
         }
         for (int i = 0; i < n; i++) {
-            Trie t = root;
             String w = words[i];
             int len = w.length();
-            if (!t.ends.isEmpty() && isPalindrome(w)) {
-                for (Integer j : t.ends) {
-                    if (i != j) {
-                        ans.add(List.of(j, i));
-                    }
-                }
+            String re = new StringBuilder(w).reverse().toString();
+            if (map.containsKey(re) && !map.get(re).equals(i)) {
+                ans.add(List.of(i, map.get(re)));
             }
-            int j = len - 1;
-            for (; j >= 0; j--) {
-                int c = w.charAt(j) - 'a';
-                t = t.next[c];
-                if (t == null) {
+            for (Integer k : lens) {
+                if (k.equals(len)) {
                     break;
                 }
-                if (!t.ends.isEmpty() && isPalindrome(w.substring(0, j))) {
-                    for (Integer k : t.ends) {
-                        if (k != i) {
-                            ans.add(List.of(k, i));
-                        }
-                    }
+                String part = re.substring(0, k);
+                if (map.containsKey(part) && !map.get(part).equals(i) && isPalindrome(re, k, len - 1)) {
+                    ans.add(List.of(map.get(part), i));
                 }
-            }
-            if (j < 0 && t != null && !t.mids.isEmpty()) {
-                for (Integer k : t.mids) {
-                    if (k != i) {
-                        ans.add(List.of(k, i));
-                    }
+                part = re.substring(len - k);
+                if (map.containsKey(part) && !map.get(part).equals(i) && isPalindrome(re, 0, len - 1 - k)) {
+                    ans.add(List.of(i, map.get(part)));
                 }
             }
         }
         return ans;
     }
 
-    private boolean isPalindrome(String s) {
-        int len = s.length();
-        for (int i = 0; i < len / 2; i++) {
-            if (s.charAt(i) != s.charAt(len - 1 - i)) {
+    private boolean isPalindrome(String s, int l, int r) {
+        while (l < r) {
+            if (s.charAt(l) != s.charAt(r)) {
                 return false;
             }
+            l++;
+            r--;
         }
         return true;
     }

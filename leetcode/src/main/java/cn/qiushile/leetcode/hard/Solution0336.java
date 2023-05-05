@@ -37,31 +37,25 @@ import java.util.List;
  * @date 2023/5/4
  */
 public class Solution0336 {
+
     class Trie {
-        int p = -1;
         Trie[] next = new Trie[26];
+        List<Integer> ends = new ArrayList<>();
+        List<Integer> mids = new ArrayList<>();
     }
 
     private void insert(Trie t, String w, int p) {
         for (int i = 0; i < w.length(); i++) {
+            if (isPalindrome(w.substring(i))) {
+                t.mids.add(p);
+            }
             int c = w.charAt(i) - 'a';
             if (t.next[c] == null) {
                 t.next[c] = new Trie();
             }
             t = t.next[c];
         }
-        t.p = p;
-    }
-
-    private int find(Trie t, String w) {
-        for (int i = 0; i < w.length(); i++) {
-            int c = w.charAt(i) - 'a';
-            if (t.next[c] == null) {
-                return -1;
-            }
-            t = t.next[c];
-        }
-        return t.p;
+        t.ends.add(p);
     }
 
     private String reverse(String w) {
@@ -76,49 +70,43 @@ public class Solution0336 {
         if (n < 2) {
             return ans;
         }
-        int[] indices = new int[n];
+        Trie root= new Trie();
         for (int i = 0; i < n; i++) {
-            indices[i] = i;
+            insert(root, words[i], i);
         }
-        qsort(words, indices, 0, n - 1);
-        Trie root1 = new Trie();
-        Trie root2 = new Trie();
-        insert(root1, words[0], 0);
-        insert(root2, reverse(words[0]), 0);
-        for (int i = 1; i < n; i++) {
-            Trie t1 = root1;
-            Trie t2 = root2;
+        for (int i = 0; i < n; i++) {
+            Trie t = root;
             String w = words[i];
             int len = w.length();
-            if (t1.p == 0 && isPalindrome(w)) {
-                ans.add(List.of(indices[i], indices[t1.p]));
-                ans.add(List.of(indices[t1.p], indices[i]));
+            if (!t.ends.isEmpty() && isPalindrome(w)) {
+                for (Integer j : t.ends) {
+                    if (i != j) {
+                        ans.add(List.of(j, i));
+                    }
+                }
             }
-            for (int j = 0; j < len; j++) {
+            int j = len - 1;
+            for (; j >= 0; j--) {
                 int c = w.charAt(j) - 'a';
-                if (t2 != null) {
-                    t2 = t2.next[c];
-                    if (t2 != null && t2.p >= 0 && t2.p != i) {
-                        if (isPalindrome(w.substring(j + 1))) {
-                            ans.add(List.of(indices[i], indices[t2.p]));
-                        }
-                    }
-                }
-                c = w.charAt(len - 1 - j) - 'a';
-                if (t1 != null) {
-                    t1 = t1.next[c];
-                    if (t1 != null && t1.p >= 0 && t1.p != i) {
-                        if (isPalindrome(w.substring(0, len - 1 - j))) {
-                            ans.add(List.of(indices[t1.p], indices[i]));
-                        }
-                    }
-                }
-                if (t1 == null && t2 == null) {
+                t = t.next[c];
+                if (t == null) {
                     break;
                 }
+                if (!t.ends.isEmpty() && isPalindrome(w.substring(0, j))) {
+                    for (Integer k : t.ends) {
+                        if (k != i) {
+                            ans.add(List.of(k, i));
+                        }
+                    }
+                }
             }
-            insert(root1, w, i);
-            insert(root2, reverse(w), i);
+            if (j < 0 && t != null && !t.mids.isEmpty()) {
+                for (Integer k : t.mids) {
+                    if (k != i) {
+                        ans.add(List.of(k, i));
+                    }
+                }
+            }
         }
         return ans;
     }
@@ -131,37 +119,5 @@ public class Solution0336 {
             }
         }
         return true;
-    }
-
-    private void qsort(String[] words, int[] indices, int left, int right) {
-        int n = indices.length;
-        if (left >= 0 && left < right && right < n) {
-            String k = words[left];
-            int v = indices[left];
-            int l = left;
-            int r = right;
-            while (l < r) {
-                while (l < r && words[r].length() >= k.length()) {
-                    r--;
-                }
-                if (l < r && words[r].length() < k.length()) {
-                    words[l] = words[r];
-                    indices[l] = indices[r];
-                    l++;
-                }
-                while (l < r && words[l].length() <= k.length()) {
-                    l++;
-                }
-                if (l < r && words[l].length() > k.length()) {
-                    words[r] = words[l];
-                    indices[r] = indices[l];
-                    r--;
-                }
-            }
-            words[l] = k;
-            indices[l] = v;
-            qsort(words, indices, left, l - 1);
-            qsort(words, indices, l + 1, right);
-        }
     }
 }

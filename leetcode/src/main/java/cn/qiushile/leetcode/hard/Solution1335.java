@@ -1,6 +1,6 @@
 package cn.qiushile.leetcode.hard;
 
-import java.util.PriorityQueue;
+import java.util.Arrays;
 
 /**
  * 1335. Minimum Difficulty of a Job Schedule
@@ -30,65 +30,35 @@ import java.util.PriorityQueue;
  * 1 <= jobDifficulty.length <= 300
  * 0 <= jobDifficulty[i] <= 1000
  * 1 <= d <= 10
+ * Runtime 9 ms Beats 83.89% Memory 40.7 MB Beats 43.84%
  * @author qiushile <qiushile@sina.com>
  * @date 2023/5/16
  */
 public class Solution1335 {
-    class Node {
-        int val;
-        Node prev;
-        Node next;
-    }
+
     public int minDifficulty(int[] jobs, int d) {
         int n = jobs.length;
         if (n < d) {
             return -1;
+        } else if (d == n) {
+            return Arrays.stream(jobs).sum();
+        } else if (d == 1) {
+            return Arrays.stream(jobs).max().getAsInt();
         }
-        PriorityQueue<Node> q = new PriorityQueue<>((a, b) -> weight(b) - weight(a));
-        Node head = new Node();
-        head.val = jobs[0];
-        int sum = jobs[0];
-        Node last = head;
-        for (int i = 1; i < n; i++) {
-            sum += jobs[i];
-            Node node = new Node();
-            node.val = jobs[i];
-            last.next = node;
-            node.prev = last;
-            q.offer(last);
-            last = node;
+        int[][] dp = new int[d + 1][n + 1];
+        for (int i = 1; i <= n; i++) {
+            dp[1][i] = Math.max(dp[1][i - 1], jobs[i - 1]);
         }
-        if (n == d) {
-            return sum;
-        }
-        q.offer(last);
-        while (n > d) {
-            Node curr = q.poll();
-            Node prev = curr.prev;
-            Node next = curr.next;
-            sum -= curr.val;
-            if (prev != null) {
-                prev.next = next;
-                q.remove(prev);
-                q.offer(prev);
+        for (int i = 2; i <= d; i++) {
+            for (int j = i; j <= n; j++) {
+                int max = jobs[j - 1];
+                dp[i][j] = dp[i - 1][j - 1] + max;
+                for (int k = j - 1; k >= i; k--) {
+                    max = Math.max(max, jobs[k - 1]);
+                    dp[i][j] = Math.min(dp[i][j], dp[i - 1][k - 1] + max);
+                }
             }
-            if (next != null) {
-                next.prev = prev;
-                q.remove(next);
-                q.offer(next);
-            }
-            n--;
         }
-        return sum;
-    }
-
-    private int weight(Node node) {
-        int w = -1;
-        if (node.prev != null && node.prev.val >= node.val) {
-            w = node.val;
-        } else if (node.next != null && node.next.val >= node.val) {
-            w = node.val;
-        }
-        return w;
+        return dp[d][n];
     }
 }

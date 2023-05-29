@@ -40,9 +40,6 @@ public class Solution1547 {
         int m = cuts.length;
         int[] cs = new int[m + 2];
         int[][] dp = new int[m + 2][m + 2];
-        for (int[] d : dp) {
-            d = new int[m + 1];
-        }
         cs[0] = 0;
         for (int i = 1; i <= m; i++) {
             cs[i] = cuts[i - 1];

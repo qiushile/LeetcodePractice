@@ -30,74 +30,81 @@ import java.util.Queue;
  * 提示：
  * 1 <= chessboard.length, chessboard[i].length <= 8
  * chessboard[i] 仅包含 "."、"O" 和 "X"
- * Failed at 153/154
+ * 时间 3 ms 击败 91.23% 内存 40.2 MB 击败 75%
  * @author qiushile <qiushile@sina.com>
  * @date 2023/6/21
  */
 public class LCP41 {
+    int[] dx = new int[]{0, 0, 1, -1, 1, 1, -1, -1};
+    int[] dy = new int[]{1, -1, 0, 0, 1, -1, 1, -1};
+
+    private int[] judge(char[][] cs, int x, int y, int dx, int dy) {
+        int xx = x + dx;
+        int yy = y + dy;
+        int len = 0;
+        while (xx >= 0 && xx < cs.length && yy >= 0 && yy < cs[0].length) {
+            if (cs[xx][yy] == 'X') {
+                return new int[]{xx, yy, len};
+            } else if (cs[xx][yy] == '.') {
+                break;
+            }
+            xx += dx;
+            yy += dy;
+            len++;
+        }
+        return new int[]{xx, yy, 0};
+    }
+
     public int flipChess(String[] chessboard) {
         int n = chessboard.length;
         int m = chessboard[0].length();
         char[][] cs = new char[n][m];
         Queue<int[]> q = new LinkedList<>();
         for (int i = 0; i < n; i++) {
-            cs[i] = chessboard[i].toCharArray();
             for (int j = 0; j < m; j++) {
-                if (cs[i][j] == 'O') {
-                    q.offer(new int[]{i, j});
-                }
-            }
-        }
-        int ans = 0;
-        int[] dx = new int[]{0, 1, 1, 1};
-        int[] dy = new int[]{1, 0, 1, -1};
-        int k = q.size();
-        int remain = k;
-        while (!q.isEmpty()) {
-            k--;
-            int[] curr = q.poll();
-            int x = curr[0];
-            int y = curr[1];
-            if (cs[x][y] == 'O') {
-                for (int i = 0; i < 4; i++) {
-                    int lx = x;
-                    int ly = y;
-                    int rx = x;
-                    int ry = y;
-                    while (lx >= 0 && ly >= 0 && lx < n && ly < m && cs[lx][ly] == 'O') {
-                        lx += dx[i];
-                        ly += dy[i];
-                    }
-                    while (rx >= 0 && ry >= 0 && rx < n && ry < m && cs[rx][ry] == 'O') {
-                        rx -= dx[i];
-                        ry -= dy[i];
-                    }
-                    if (lx >= 0 && ly >= 0 && lx < n && ly < m && rx >= 0 && ry >= 0 && rx < n && ry < m) {
-                        if (cs[lx][ly] == 'X' || cs[rx][ry] == 'X') {
-                            cs[lx][ly] = cs[rx][ry] = 'X';
-                            while (lx != rx || ly != ry) {
-                                if (cs[lx][ly] == 'O') {
-                                    cs[lx][ly] = 'X';
-                                    ans++;
-                                }
-                                lx -= dx[i];
-                                ly -= dy[i];
-                            }
+                if (chessboard[i].charAt(j) == '.') {
+                    for (int k = 0; k < 8; k++) {
+                        int x = i + dx[k];
+                        int y = j + dy[k];
+                        if (x >= 0 && x < n && y >= 0 && y < m && chessboard[x].charAt(y) == 'O') {
+                            q.offer(new int[]{i, j});
                             break;
                         }
                     }
                 }
             }
-            if (cs[x][y] == 'O') {
-                q.offer(curr);
+        }
+        int ans = 0;
+        while (!q.isEmpty()) {
+            int[] cur = q.poll();
+            for (int i = 0; i < n; i++) {
+                cs[i] = chessboard[i].toCharArray();
             }
-            if (k == 0) {
-                k = q.size();
-                if (k == remain) {
-                    break;
+            cs[cur[0]][cur[1]] = 'X';
+            Queue<int[]> qq = new LinkedList<>();
+            qq.offer(cur);
+            int res = 0;
+            while (!qq.isEmpty()) {
+                int[] curr = qq.poll();
+                int x = curr[0];
+                int y = curr[1];
+                for (int i = 0; i < 8; i++) {
+                    int[] js = judge(cs, x, y, dx[i], dy[i]);
+                    if (js[2] > 0) {
+                        int len = js[2];
+                        res += len;
+                        int xx = x + dx[i];
+                        int yy = y + dy[i];
+                        while (cs[xx][yy] == 'O') {
+                            qq.offer(new int[]{xx, yy});
+                            cs[xx][yy] = 'X';
+                            xx += dx[i];
+                            yy += dy[i];
+                        }
+                    }
                 }
-                remain = k;
             }
+            ans = Math.max(ans, res);
         }
         return ans;
     }

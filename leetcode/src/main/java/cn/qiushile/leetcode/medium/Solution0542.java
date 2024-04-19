@@ -27,7 +27,7 @@ import java.util.Queue;
  * @author qiushile <qiushile@sina.com>
  * @date 2023/1/10
  */
-public class Solutioin0542 {
+public class Solution0542 {
     public int[][] updateMatrix(int[][] mat) {
         int m = mat.length;
         int n = mat[0].length;

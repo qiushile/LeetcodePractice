@@ -5,13 +5,13 @@ import org.junit.Test;
 
 import static org.junit.Assert.assertArrayEquals;
 
-public class Solutioin0542Test {
+public class Solution0542Test {
 
-    private Solutioin0542 solutioin0542UnderTest;
+    private Solution0542 solution0542UnderTest;
 
     @Before
     public void setUp() throws Exception {
-        solutioin0542UnderTest = new Solutioin0542();
+        solution0542UnderTest = new Solution0542();
     }
 
     @Test
@@ -21,7 +21,7 @@ public class Solutioin0542Test {
         final int[][] expectedResult = new int[][]{{0,0,0},{0,1,0},{0,0,0}};
 
         // Run the test
-        final int[][] result = solutioin0542UnderTest.updateMatrix(mat);
+        final int[][] result = solution0542UnderTest.updateMatrix(mat);
 
         // Verify the results
         assertArrayEquals(expectedResult, result);
@@ -34,7 +34,7 @@ public class Solutioin0542Test {
         final int[][] expectedResult = new int[][]{{0,0,0},{0,1,0},{1,2,1}};
 
         // Run the test
-        final int[][] result = solutioin0542UnderTest.updateMatrix(mat);
+        final int[][] result = solution0542UnderTest.updateMatrix(mat);
 
         // Verify the results
         assertArrayEquals(expectedResult, result);

@@ -1,6 +1,7 @@
 package cn.qiushile.leetcode.medium;
 
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.TreeSet;
 
 /**
@@ -42,7 +43,7 @@ import java.util.TreeSet;
  * 1 <= m <= 106
  * 1 <= k <= n
  *
- * Runtime 740 ms Beats 5.09% Analyze Complexity Memory 61.48 MB Beats 5.64%
+ * Runtime 162 ms Beats 5.09% Memory 56.46 MB Beats 79.86%
  * @author qiushile <qiushile@sina.com>
  * @date 2024/6/19
  */
@@ -53,36 +54,41 @@ public class Solution1482 {
         if (n < m * k) {
             return -1;
         }
-        TreeSet<Integer> before = new TreeSet<>();
-        TreeSet<Integer> after = new TreeSet<>();
         Integer[] ids = new Integer[n];
+        int[] left = new int[n];
+        int[] right = new int[n];
+        Arrays.fill(left, -1);
+        Arrays.fill(right, n);
         for (int i = 0; i < n; i++) {
             ids[i] = i;
         }
-        Arrays.sort(ids, (a, b) -> bloomDay[a] - bloomDay[b]);
+        Arrays.sort(ids, Comparator.comparingInt(a -> bloomDay[a]));
         int cnt = 0;
         for (int i = 0; i < n; i++) {
-            Integer p = ids[i];
-            Integer l = p, r = p;
-            Integer leftBefore = before.floor(p);
-            if (leftBefore != null && after.ceiling(leftBefore).equals(p - 1)) {
-                cnt -= (p - leftBefore) / k;
-                l = leftBefore;
-                after.remove(p - 1);
+            int p = ids[i];
+            int l = p - 1, r = p + 1;
+            while (l != -1 && left[l] != l) {
+                l = left[l];
             }
-            Integer rightBefore = before.ceiling(p);
-            if (rightBefore != null && rightBefore.equals(p + 1)) {
-                Integer rightAfter = after.ceiling(rightBefore);
-                cnt -= (rightAfter - p) / k;
-                r = rightAfter;
-                before.remove(rightBefore);
+            while (r != n && right[r] != r) {
+                r = right[r];
             }
-            before.add(l);
-            after.add(r);
+            if (l == -1) {
+                l = p;
+            } else {
+                cnt -= (p - l) / k;
+            }
+            if (r == n) {
+                r = p;
+            } else {
+                cnt -= (r - p) / k;
+            }
             cnt += (r - l + 1) / k;
             if (cnt >= m) {
                 return bloomDay[p];
             }
+            left[r] = left[l] = l;
+            right[l] = right[r] = r;
         }
         return -1;
     }
